@@ -1,0 +1,88 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.Views.InscriptionView"
+    x:DataType="vm:InscriptionViewModel"
+    Background="#f0f2f5">
+
+  <Grid>
+    <Border Background="White"
+            CornerRadius="12"
+            BorderThickness="2"
+            BorderBrush="#3b82f6"
+            Padding="30"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="400">
+
+      <StackPanel Spacing="16">
+
+        <TextBlock Text="Créer un compte"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Foreground="#111827"/>
+
+        <StackPanel>
+          <TextBlock Text="Nom" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
+          <TextBox Text="{Binding Nom}" MinWidth="260" Height="36" FontSize="14"
+                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
+        </StackPanel>
+
+        <StackPanel>
+          <TextBlock Text="Prénom" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
+          <TextBox Text="{Binding Prenom}" MinWidth="260" Height="36" FontSize="14"
+                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
+        </StackPanel>
+
+        <StackPanel>
+          <TextBlock Text="Email" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
+          <TextBox Text="{Binding Email}" MinWidth="260" Height="36" FontSize="14"
+                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
+        </StackPanel>
+
+        <StackPanel>
+          <TextBlock Text="Mot de passe" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
+          <TextBox Text="{Binding Password}" PasswordChar="•" MinWidth="260" Height="36" FontSize="14"
+                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
+        </StackPanel>
+
+        <StackPanel>
+          <TextBlock Text="Confirmer le mot de passe" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
+          <TextBox Text="{Binding ConfirmPassword}" PasswordChar="•" MinWidth="260" Height="36" FontSize="14"
+                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding Error}"
+                   Foreground="Red"
+                   TextWrapping="Wrap"
+                   HorizontalAlignment="Center"/>
+
+        <!-- Bouton S'inscrire -->
+        <Button Content="S'inscrire"
+                Height="40"
+                Background="#3b82f6"
+                Foreground="White"
+                FontWeight="Bold"
+                CornerRadius="6"
+                Command="{Binding RegisterCommand}"/>
+
+        <!-- Lien vers Connexion -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="6">
+            <TextBlock Text="Déjà un compte ?" Foreground="#374151"/>
+            <Button Content="Se connecter"
+                    Command="{Binding GoLoginCommand}"
+                    Background="Transparent"
+                    Foreground="#3b82f6"
+                    BorderThickness="0"
+                    Cursor="Hand"/>
+        </StackPanel>
+
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
+

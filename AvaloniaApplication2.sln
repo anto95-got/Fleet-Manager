@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fleet-manager", "fleet-manager\fleet-manager.csproj", "{49725FD9-CF46-4230-BBE0-A5F4330F0566}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fleet_manager", "fleet_manager\fleet_manager.csproj", "{49725FD9-CF46-4230-BBE0-A5F4330F0566}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,12 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Title="Fleet Manager" Width="900" Height="600"
+    Background="#f0f2f5"
+    WindowStartupLocation="CenterScreen">
+
+    <ContentControl Content="{Binding CurrentView}" />
+</Window>

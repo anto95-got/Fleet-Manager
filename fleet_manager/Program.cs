@@ -1,5 +1,8 @@
 ﻿using Avalonia;
 using System;
+using FleetManager;
+using FleetManager.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace fleet_manager;
 
@@ -18,4 +21,6 @@ class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
+
+   
 }

@@ -1,0 +1,16 @@
+<Application
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="clr-namespace:FleetManager.Views"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.App">
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="{x:Type vm:ConnexionViewModel}">
+            <views:ConnexionView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:InscriptionViewModel}">
+            <views:InscriptionView/>
+        </DataTemplate>
+    </Application.DataTemplates>
+</Application>

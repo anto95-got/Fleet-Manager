@@ -1,0 +1,86 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.Views.ConnexionView"
+    x:DataType="vm:ConnexionViewModel"
+    Background="#f0f2f5">
+
+  <Grid>
+    <Border Background="White"
+            CornerRadius="12"
+            BorderThickness="2"
+            BorderBrush="#3b82f6"
+            Padding="30"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Width="380">
+
+      <StackPanel Spacing="16">
+
+        <!-- Titre -->
+        <TextBlock Text="Se connecter"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Foreground="#111827"/>
+
+        <!-- Email -->
+        <StackPanel>
+          <TextBlock Text="Email"
+                     FontWeight="Bold"
+                     FontSize="14"
+                     Foreground="#374151"/>
+          <TextBox
+              Text="{Binding Email}"
+              MinWidth="260" Height="36" FontSize="14"
+              Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1"
+              CornerRadius="6"/>
+        </StackPanel>
+
+        <!-- Mot de passe -->
+        <StackPanel>
+          <TextBlock Text="Mot de passe"
+                     FontWeight="Bold"
+                     FontSize="14"
+                     Foreground="#374151"/>
+          <TextBox
+              Text="{Binding Password}"
+              PasswordChar="•"
+              MinWidth="260" Height="36" FontSize="14"
+              Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1"
+              CornerRadius="6"/>
+        </StackPanel>
+
+        <!-- Message d'erreur -->
+        <TextBlock Text="{Binding Error}"
+                   Foreground="Red"
+                   TextWrapping="Wrap"
+                   HorizontalAlignment="Center"/>
+
+        <!-- Bouton Connexion -->
+        <Button Content="Se connecter"
+                Height="40"
+                Background="#3b82f6"
+                Foreground="White"
+                FontWeight="Bold"
+                CornerRadius="6"
+                Command="{Binding LoginCommand}"/>
+
+        <!-- Lien vers Inscription -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="6">
+          <TextBlock Text="Pas encore de compte ?" Foreground="#374151"/>
+          <Button Content="Créer un compte"
+                  Command="{Binding GoRegisterCommand}"
+                  Background="Transparent"
+                  Foreground="#3b82f6"
+                  BorderThickness="0"
+                  Cursor="Hand"/>
+        </StackPanel>
+
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
