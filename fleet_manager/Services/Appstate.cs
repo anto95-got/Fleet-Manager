@@ -6,4 +6,6 @@ public class AppState
 {
     public User? CurrentUser { get; set; }
     public bool IsAuthenticated => CurrentUser != null;
+    
+    
 }

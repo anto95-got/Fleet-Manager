@@ -1,0 +1,37 @@
+<UserControl  
+    xmlns="https://github.com/avaloniaui"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:vm="clr-namespace:FleetManager.ViewModels"
+              x:Class="FleetManager.Views.ModificationVehiculeView"
+              x:DataType="vm:ModificationVehiculeViewModel">
+    
+    
+    
+    
+    <Border Grid.Column="0" Background="#FFB3B3B3">
+        <StackPanel Margin="20" VerticalAlignment="Center">
+
+            <TextBlock Text="MENU" 
+                       FontSize="18" 
+                       Margin="0,0,0,5"/>
+            <Button Command="{Binding GoToHome}"
+                    ></Button>
+            <Button Command="{Binding }"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,10">
+                <TextBlock Text="Tableau de bord" FontSize="16"/>
+            </Button>
+
+            <Button Command="{Binding }"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,10">
+                <TextBlock Text="Déconnexion" FontSize="16"/>
+            </Button>
+
+        </StackPanel>
+    </Border>
+    
+    
+</UserControl>

@@ -1,14 +1,97 @@
-<UserControl    
+<UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:FleetManager.ViewModels"
     x:Class="FleetManager.Views.AcceuilView"
     x:DataType="vm:AcceuilViewModel">
-    <Grid>
-        <StackPanel>
+
+    <Grid ColumnDefinitions="250,*">
+
+        <!-- Colonne gauche : juste une barre grise avec 2 boutons texte -->
+        <Border Grid.Column="0" Background="#FFB3B3B3">
+            <StackPanel Margin="20" VerticalAlignment="Center">
+
+                <Button Command="{Binding  GoToHome}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Left"
+                        
+                           Margin="0,0,0,5">
+                    <Image Source="../static/image_logo/logo_fleet_sans-fond.png"
+                           Width="100"
+                           Height="100">
+                        
+                    </Image>
+                    </Button>
+
+                <Button Command="{Binding GoVehiculesCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Margin="0,10">
+                    <TextBlock Text="Modifier véhicule" FontSize="16"/>
+                </Button>
+
+                <Button Command="{Binding LogoutCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Margin="0,10">
+                    <TextBlock Text="Déconnexion" FontSize="16"/>
+                </Button>
+
+            </StackPanel>
+        </Border>
+
+        <!-- Colonne droite : zone blanche avec bienvenue -->
+        <Grid Grid.Column="1" Background="White" RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0"
+                       Text="{Binding WelcomeText}"
+                       FontSize="24"
+                       Margin="30,20,0,20"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
             
-            <TextBlock Text="{Binding WelcomeText}" />
-            
-        </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,0,0,0" Spacing="20">
+                <Border Background="Gray"
+                        CornerRadius="6"
+                        Height="100"
+                        Width="150">
+                   <StackPanel VerticalAlignment="Center">
+                       <TextBlock Text="Nombre de véhicules"
+                                  FontSize="10"
+                                  Margin="5,10,5,5"
+                                  FontStyle="Italic"
+                                  HorizontalAlignment="Center"
+                                  TextWrapping="Wrap"/>
+                       <TextBlock Text="{Binding NombreDeVehicules}"
+                                  FontSize="16"
+                                  FontWeight="Bold"
+                                  Foreground="Red"
+                                  HorizontalAlignment="Center"/>
+                   </StackPanel>
+                </Border>
+                
+                <Border Background="Gray"
+                        CornerRadius="6"
+                        Height="100"
+                        Width="150">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Nombre de transactions"
+                                   FontSize="10"
+                                   Margin="5,10,5,5"
+                                   FontStyle="Italic"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding NombreDeSuivis}"
+                                   FontSize="16"
+                                   Foreground="Red"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                
+                
+            </StackPanel>
+        </Grid>
+
     </Grid>
 </UserControl>

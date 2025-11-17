@@ -6,17 +6,50 @@ public class NavigationService
 {
     private readonly MainWindowViewModel _main;
 
-    public NavigationService(MainWindowViewModel main) => _main = main;
+    public NavigationService(MainWindowViewModel main)
+    {
+        _main = main;
+    }
 
     public void GoToLogin()
-        => _main.CurrentView = new ConnexionViewModel(this, _main.State);
+    {
+        // Si déjà connecté, on redirige vers l'accueil
+        if (_main.State.CurrentUser != null)
+        {
+            GoToHome();
+            return;
+        }
+
+        _main.CurrentView = new ConnexionViewModel(this, _main.State);
+    }
 
     public void GoToRegister()
-        => _main.CurrentView = new InscriptionViewModel(this, _main.State);
+    {    
+        if (_main.State.CurrentUser != null)
+        {
+            GoToHome();
+            return;
+        }
+        _main.CurrentView = new InscriptionViewModel(this, _main.State);
+    }
 
-    // À remplacer par ton vrai Dashboard plus tard
-    public void GoToDashboard()
-        => _main.CurrentView = new AcceuilViewModel(this, _main.State);
+    public void GoToHome()
+    {   
+        if (_main.State.CurrentUser == null)
+        {
+            GoToLogin();
+            return;
+        }
+        _main.CurrentView = new AcceuilViewModel(this, _main.State, _main.Db);
+    }
 
-    
+    public void GoToVehicules()
+    {   
+        if (_main.State.CurrentUser == null)
+        {
+            GoToLogin();
+            return;
+        }
+        _main.CurrentView = new ModificationVehiculeViewModel(this, _main.State);
+    }
 }

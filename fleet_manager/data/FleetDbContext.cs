@@ -10,7 +10,10 @@ public class FleetDbContext : DbContext
     public FleetDbContext(DbContextOptions<FleetDbContext> options) : base(options) { }
 
     public DbSet<User> Users => Set<User>();
-
+    
+    public DbSet<Vehicule> Vehicules{ get; set; }
+    
+    public DbSet<Suivi> Suivis { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

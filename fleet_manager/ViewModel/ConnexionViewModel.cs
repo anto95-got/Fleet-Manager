@@ -49,7 +49,9 @@ public class ConnexionViewModel : BaseViewModel
             { Error = "Identifiants invalides."; return; }
 
             _state.CurrentUser = user;
-            _nav.GoToDashboard(); // placeholder
+            
+            _nav.GoToHome(); // placeholder
+            
         }
         catch (Exception ex)
         {

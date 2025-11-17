@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FleetManager.Services;
 using FleetManager.ViewModels;
 using FleetManager.Views;
 
@@ -15,13 +14,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var state = new AppState();
-            var mainVm = new MainWindowViewModel(state);
-            var nav = new NavigationService(mainVm);
-            // page de démarrage :
-            nav.GoToRegister();
+            // On utilise le constructeur SANS paramètres
+            var mainVm = new MainWindowViewModel();
 
-            desktop.MainWindow = new MainWindow { DataContext = mainVm };
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = mainVm
+            };
         }
 
         base.OnFrameworkInitializationCompleted();
