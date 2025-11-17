@@ -16,7 +16,7 @@ public class FleetDbContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseMySql(
-                "server=localhost;database=fleet_manager;user=root;password=;",
+                "server=localhost;port=8889;database=fleet-manager;uid=root;pwd=root;",
                 new MySqlServerVersion(new Version(8, 0, 36))
             );
         }
@@ -25,7 +25,11 @@ public class FleetDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
+            .ToTable("user")
             .HasIndex(u => u.Email)
             .IsUnique();
+
+        base.OnModelCreating(modelBuilder);
     }
+
 }

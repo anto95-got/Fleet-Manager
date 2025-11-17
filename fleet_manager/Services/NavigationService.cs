@@ -16,5 +16,7 @@ public class NavigationService
 
     // À remplacer par ton vrai Dashboard plus tard
     public void GoToDashboard()
-        => _main.CurrentView = new ConnexionViewModel(this, _main.State);
+        => _main.CurrentView = new AcceuilViewModel(this, _main.State);
+
+    
 }

@@ -40,7 +40,7 @@ public class ConnexionViewModel : BaseViewModel
         { Error = "Email et mot de passe requis."; return; }
 
         try
-        {
+        {   
             using var ctx = new FleetDbContext(new DbContextOptions<FleetDbContext>());
             var emailNorm = Email.Trim().ToLower();
 

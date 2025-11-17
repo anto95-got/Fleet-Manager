@@ -74,7 +74,7 @@ public class InscriptionViewModel : BaseViewModel
             await ctx.SaveChangesAsync();
 
             _state.CurrentUser = user;
-            _nav.GoToLogin(); // ou _nav.GoToDashboard();
+            _nav.GoToDashboard(); 
         }
         catch (Exception ex)
         {

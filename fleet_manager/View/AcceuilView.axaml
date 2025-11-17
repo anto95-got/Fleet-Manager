@@ -1,0 +1,14 @@
+<UserControl    
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.Views.AcceuilView"
+    x:DataType="vm:AcceuilViewModel">
+    <Grid>
+        <StackPanel>
+            
+            <TextBlock Text="{Binding WelcomeText}" />
+            
+        </StackPanel>
+    </Grid>
+</UserControl>

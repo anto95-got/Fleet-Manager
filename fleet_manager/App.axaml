@@ -5,6 +5,13 @@
     xmlns:vm="clr-namespace:FleetManager.ViewModels"
     x:Class="FleetManager.App">
 
+    <!-- STYLES / THEME OBLIGATOIRES -->
+    <Application.Styles>
+        <FluentTheme/>
+    </Application.Styles>
+
+
+    <!-- Lien ViewModel -> View -->
     <Application.DataTemplates>
         <DataTemplate DataType="{x:Type vm:ConnexionViewModel}">
             <views:ConnexionView/>
@@ -12,5 +19,9 @@
         <DataTemplate DataType="{x:Type vm:InscriptionViewModel}">
             <views:InscriptionView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AcceuilViewModel}">
+            <views:AcceuilView/>
+        </DataTemplate>
     </Application.DataTemplates>
+
 </Application>
