@@ -17,7 +17,7 @@
                         HorizontalAlignment="Left"
                         
                            Margin="0,0,0,5">
-                    <Image Source="../static/image_logo/logo_fleet_sans-fond.png"
+                    <Image Source="../static/image_logo/"
                            Width="100"
                            Height="100">
                         
