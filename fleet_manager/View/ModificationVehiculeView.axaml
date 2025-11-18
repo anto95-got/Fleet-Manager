@@ -1,37 +1,51 @@
 <UserControl  
     xmlns="https://github.com/avaloniaui"
-              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:vm="clr-namespace:FleetManager.ViewModels"
-              x:Class="FleetManager.Views.ModificationVehiculeView"
-              x:DataType="vm:ModificationVehiculeViewModel">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:FleetManager.ViewModels"
+    x:Class="FleetManager.Views.ModificationVehiculeView"
+    x:DataType="vm:ModificationVehiculeViewModel">
     
+    <Grid ColumnDefinitions="250,*">
     
-    
-    
-    <Border Grid.Column="0" Background="#FFB3B3B3">
-        <StackPanel Margin="20" VerticalAlignment="Center">
+        <Border Grid.Column="0" Background="#FFB3B3B3">
+            <StackPanel Margin="20" VerticalAlignment="Center">
 
-            <TextBlock Text="MENU" 
-                       FontSize="18" 
-                       Margin="0,0,0,5"/>
-            <Button Command="{Binding GoToHome}"
-                    ></Button>
-            <Button Command="{Binding }"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Margin="0,10">
-                <TextBlock Text="Tableau de bord" FontSize="16"/>
-            </Button>
+                <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png"
+                       Width="150"
+                       Height="150"
+                       Margin="0,0,0,20"/>
+                
+                <Button Command="{Binding GoToHome}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Left"
+                        Margin="0,10">
+                    <TextBlock Text="Tableau de bord" FontSize="16"/>
+                </Button>
 
-            <Button Command="{Binding }"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Margin="0,10">
-                <TextBlock Text="Déconnexion" FontSize="16"/>
-            </Button>
+                <Button Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Left"
+                        Margin="0,10">
+                    <TextBlock Text="Ajouter un véhicule" FontSize="16"/>
+                </Button>
+                
+                <Button Command="{Binding }"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Left"
+                        Margin="0,10">
+                    <TextBlock Text="Déconnexion" FontSize="16"/>
+                </Button>
 
-        </StackPanel>
-    </Border>
-    
-    
+            </StackPanel>
+        </Border>
+        
+        <Border Grid.Column="1" Background="White">
+            <StackPanel Margin="30">
+                <TextBlock Text="Page de Modification/Ajout de Véhicule" FontSize="24" FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+        
+    </Grid>
 </UserControl>

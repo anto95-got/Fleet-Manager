@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="fleet-manager/App.axaml" value="fleet-manager/fleet-manager.csproj" />
+        <entry key="fleet-manager/MainWindow.axaml" value="fleet-manager/fleet-manager.csproj" />
+        <entry key="fleet_manager/App.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/PasswordBox.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/AcceuilView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/Connexion.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/ConnexionView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/Inscription.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/InscriptionView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/MainWindow.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/MainWindowViewModel.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/ModificationVehicule.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/ModificationVehiculeView.axaml" value="fleet_manager/fleet_manager.csproj" />
+      </map>
+    </option>
+  </component>
+</project>

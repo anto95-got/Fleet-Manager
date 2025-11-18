@@ -5,8 +5,49 @@
     x:Class="FleetManager.Views.ConnexionView"
     x:DataType="vm:ConnexionViewModel"
     Background="#f0f2f5">
+    
+    
+    <UserControl.Styles>
 
-  <Grid>
+        <!-- Style de base pour toutes les TextBox -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#f3f4f6"/>      <!-- gris clair -->
+            <Setter Property="BorderBrush" Value="#d1d5db"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#111827"/>      <!-- texte presque noir -->
+        </Style>
+
+        <!-- TextBox au SURVOL -->
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="#e5e7eb"/>      <!-- gris un peu plus foncé -->
+        </Style>
+
+        <!-- TextBox avec le FOCUS (active, en train d'écrire) -->
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="#e5e7eb"/>      <!-- garde le gris plus foncé -->
+            <Setter Property="BorderBrush" Value="#3b82f6"/>     <!-- bord bleu -->
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+          
+
+    </UserControl.Styles>
+    
+    <UserControl.Resources>
+        <!-- Couleurs normales -->
+        <SolidColorBrush x:Key="ButtonBackground" Color="#3b82f6"/>
+        <SolidColorBrush x:Key="ButtonForeground" Color="White"/>
+
+        <!-- Couleurs au survol -->
+        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="DarkBlue"/>
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Black"/>
+
+        <!-- Couleurs quand pressé (optionnel) -->
+        <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#e5e7eb"/>
+        <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Black"/>
+    </UserControl.Resources>
+
+    <Grid>
     <Border Background="White"
             CornerRadius="12"
             BorderThickness="2"

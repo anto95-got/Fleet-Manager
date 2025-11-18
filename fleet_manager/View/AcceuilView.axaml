@@ -7,22 +7,19 @@
 
     <Grid ColumnDefinitions="250,*">
 
-        <!-- Colonne gauche : juste une barre grise avec 2 boutons texte -->
         <Border Grid.Column="0" Background="#FFB3B3B3">
             <StackPanel Margin="20" VerticalAlignment="Center">
 
-                <Button Command="{Binding  GoToHome}"
+                <Button Command="{Binding GoToHome}"
                         Background="Transparent"
+                        Foreground="Transparent"
                         BorderThickness="0"
                         HorizontalAlignment="Left"
-                        
-                           Margin="0,0,0,5">
-                    <Image Source="../static/image_logo/"
-                           Width="100"
-                           Height="100">
-                        
-                    </Image>
-                    </Button>
+                        Margin="0,0,0,5">
+                    <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png"
+                           Width="150"
+                           Height="150"/>
+                </Button>
 
                 <Button Command="{Binding GoVehiculesCommand}"
                         Background="Transparent"
@@ -41,8 +38,8 @@
             </StackPanel>
         </Border>
 
-        <!-- Colonne droite : zone blanche avec bienvenue -->
         <Grid Grid.Column="1" Background="White" RowDefinitions="Auto,*">
+    
             <TextBlock Grid.Row="0"
                        Text="{Binding WelcomeText}"
                        FontSize="24"
@@ -50,48 +47,71 @@
                        HorizontalAlignment="Left"
                        VerticalAlignment="Top"/>
             
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,0,0,0" Spacing="20">
-                <Border Background="Gray"
-                        CornerRadius="6"
-                        Height="100"
-                        Width="150">
-                   <StackPanel VerticalAlignment="Center">
-                       <TextBlock Text="Nombre de véhicules"
-                                  FontSize="10"
-                                  Margin="5,10,5,5"
-                                  FontStyle="Italic"
-                                  HorizontalAlignment="Center"
-                                  TextWrapping="Wrap"/>
-                       <TextBlock Text="{Binding NombreDeVehicules}"
-                                  FontSize="16"
-                                  FontWeight="Bold"
-                                  Foreground="Red"
-                                  HorizontalAlignment="Center"/>
-                   </StackPanel>
-                </Border>
+            <Grid Grid.Row="1" 
+                  RowDefinitions="Auto, Auto" 
+                  Margin="30,0,0,0" 
+                  VerticalAlignment="Top" 
+                  ColumnDefinitions="*"> 
                 
-                <Border Background="Gray"
-                        CornerRadius="6"
-                        Height="100"
-                        Width="150">
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Nombre de transactions"
-                                   FontSize="10"
-                                   Margin="5,10,5,5"
-                                   FontStyle="Italic"
-                                   HorizontalAlignment="Center"
-                                   TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding NombreDeSuivis}"
-                                   FontSize="16"
-                                   Foreground="Red"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-                
-                
-            </StackPanel>
-        </Grid>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="20" Margin="0,0,0,20">
+                    
+                    <Border Background="Gray"
+                            CornerRadius="6"
+                            Height="100"
+                            Width="150">
+                       <StackPanel VerticalAlignment="Center">
+                           <TextBlock Text="Nombre de véhicules"
+                                      FontSize="10"
+                                      Margin="5,10,5,5"
+                                      FontStyle="Italic"
+                                      HorizontalAlignment="Center"
+                                      TextWrapping="Wrap"/>
+                           <TextBlock Text="{Binding NombreDeVehicules}"
+                                      FontSize="16"
+                                      FontWeight="Bold"
+                                      Foreground="Red"
+                                      HorizontalAlignment="Center"/>
+                       </StackPanel>
+                    </Border>
+                    
+                    <Border Background="Gray"
+                            CornerRadius="6"
+                            Height="100"
+                            Width="150">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Nombre de transactions"
+                                       FontSize="10"
+                                       Margin="5,10,5,5"
+                                       FontStyle="Italic"
+                                       HorizontalAlignment="Center"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding NombreDeSuivis}"
+                                       FontSize="16"
+                                       Foreground="Red"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    
+                </StackPanel>
 
-    </Grid>
-</UserControl>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="20">
+                    
+                    <Border Background="#F4F4F4"
+                            CornerRadius="6"
+                            Height="300"
+                            Width="500">
+                        <StackPanel/>
+                    </Border>
+                    
+                    <Border Background="#F4F4F4"
+                            CornerRadius="6"
+                            Height="300"
+                            Width="500"/>
+                    
+                </StackPanel>
+                
+            </Grid>
+            </Grid>
+        </Grid>
+    </UserControl>
