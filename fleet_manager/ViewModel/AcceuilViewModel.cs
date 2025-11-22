@@ -91,7 +91,6 @@ namespace FleetManager.ViewModels
                 new MenuItem { Title = "Déconnexion",           Command = LogoutCommand }
             };
 
-            // ⚠️ ON NE LANCE PLUS 2 REQUÊTES EN PARALLÈLE SUR LE MÊME DbContext
             _ = InitAsync();
         }
 

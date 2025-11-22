@@ -7,7 +7,7 @@
 
     <!-- STYLES / THEME OBLIGATOIRES -->
     <Application.Styles>
-        <FluentTheme/>
+        <FluentTheme />
     </Application.Styles>
 
 
