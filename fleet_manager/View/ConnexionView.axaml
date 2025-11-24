@@ -108,7 +108,31 @@
                 CornerRadius="6"
                 Command="{Binding LoginCommand}"/>
 
-       
+        <Border Background="#AA000000"
+                IsVisible="{Binding IsChangePasswordOpen}"
+                Grid.RowSpan="10" Grid.ColumnSpan="10"> <Border Background="White" CornerRadius="10" Padding="20" 
+                                                                Width="350" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Spacing="15">
+            
+                    <TextBlock Text="Sécurité" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Veuillez définir votre nouveau mot de passe personnel." 
+                               TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
+
+                    <TextBox Text="{Binding NewPassword}" PasswordChar="•" Watermark="Nouveau mot de passe"/>
+            
+                    <TextBox Text="{Binding ConfirmNewPassword}" PasswordChar="•" Watermark="Confirmer nouveau mot de passe"/>
+
+                    <TextBlock Text="{Binding PopupError}" Foreground="Red" TextWrapping="Wrap" 
+                               IsVisible="{Binding PopupError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <Button Content="Mettre à jour et accéder" 
+                            Command="{Binding SubmitNewPasswordCommand}"
+                            HorizontalAlignment="Stretch"
+                            Background="#2196F3" Foreground="White"/>
+            
+                </StackPanel>
+            </Border>
+        </Border>       
 
       </StackPanel>
     </Border>

@@ -22,12 +22,14 @@ public class User
     [Column("password")]
     public string PasswordHash { get; set; } = "";
 
-    // Ton champ existant (l'ID)
-    [Column("id_role")] 
+    // Clé étrangère vers la table Role
+    [Column("id_role")]
+    [ForeignKey(nameof(RoleInfo))]  // ⬅️ CORRECTION ICI
     public int Role { get; set; } = 1;
 
-    // 🔥 AJOUT UNIQUE : L'objet pour pouvoir afficher le nom
-    // Cela dit à C# : "Utilise l'int 'Role' ci-dessus pour trouver l'objet RoleInfo"
-    [ForeignKey("Role")]
+    // Propriété de navigation
     public Role? RoleInfo { get; set; }
+
+    [Column("must_change_password")]
+    public bool MustChangePassword { get; set; } = true;
 }

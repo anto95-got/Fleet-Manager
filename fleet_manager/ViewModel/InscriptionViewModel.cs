@@ -14,12 +14,12 @@ public class InscriptionViewModel : BaseViewModel
     private readonly NavigationService _nav;
     private readonly AppState _state;
 
-    // Champs formulaire (Plus de password ici)
+    // Champs du formulaire (Pas de mot de passe, c'est auto)
     private string _nom = "";
     private string _prenom = "";
     private string _email = "";
     private string _error = "";
-    private string _successMessage = ""; // Pour confirmer à l'admin
+    private string _successMessage = "";
 
     public string Nom { get => _nom; set { _nom = value; OnPropertyChanged(); } }
     public string Prenom { get => _prenom; set { _prenom = value; OnPropertyChanged(); } }
@@ -28,25 +28,22 @@ public class InscriptionViewModel : BaseViewModel
     public string SuccessMessage { get => _successMessage; set { _successMessage = value; OnPropertyChanged(); } }
 
     public ICommand RegisterCommand { get; }
-    public ICommand GoBackCommand { get; } // Retour au tableau de bord (pas login)
-    
+    public ICommand GoBackCommand { get; }
 
     public InscriptionViewModel(NavigationService nav, AppState state)
     {
         _nav = nav;
         _state = state;
 
-        // VÉRIFICATION DE SÉCURITÉ AU CHARGEMENT
-        // Si l'utilisateur n'est pas connecté ou n'est pas Admin/SuperAdmin
-        if (_state.CurrentUser == null || _state.CurrentUser.Role == 1) // 1 = Utilisateur simple
+        // VÉRIFICATION SÉCURITÉ : Seuls Admin (2) et SuperAdmin (3) peuvent accéder
+        if (_state.CurrentUser == null || _state.CurrentUser.Role < 2)
         {
-            // On le renvoie à l'accueil ou au login
-            _nav.GoToHome();
+            _nav.GoToHome(); // Ejection
         }
 
         RegisterCommand = new RelayCommand(RegisterAsync);
-        // Le bouton retour renvoie à la gestion des utilisateurs ou home
-        GoBackCommand = new RelayCommand(() => _nav.GoToAdmin()); 
+        // Le bouton retour renvoie au tableau de bord Admin
+        GoBackCommand = new RelayCommand(() => _nav.GoToAdmin());
     }
 
     private async Task RegisterAsync()
@@ -54,10 +51,10 @@ public class InscriptionViewModel : BaseViewModel
         Error = "";
         SuccessMessage = "";
 
-        // 1. Validation basique
+        // 1. Validation des champs
         if (string.IsNullOrWhiteSpace(Nom) || string.IsNullOrWhiteSpace(Prenom) || string.IsNullOrWhiteSpace(Email))
         {
-            Error = "Nom, Prénom et Email sont obligatoires.";
+            Error = "Veuillez remplir le Nom, le Prénom et l'Email.";
             return;
         }
 
@@ -66,67 +63,59 @@ public class InscriptionViewModel : BaseViewModel
             using var ctx = new FleetDbContext();
             var emailNorm = Email.Trim().ToLower();
 
-            // 2. Vérifier si l'email existe déjà
-            var exists = await ctx.Users.AnyAsync(u => u.Email == emailNorm);
-            if (exists)
+            // 2. Vérifier unicité email
+            bool existe = await ctx.Users.AnyAsync(u => u.Email == emailNorm);
+            if (existe)
             {
-                Error = "Cet email est déjà utilisé par un autre collaborateur.";
+                Error = "Cet email est déjà enregistré.";
                 return;
             }
 
-            // 3. GÉNÉRATION DU MOT DE PASSE ALÉATOIRE
-            string randomPassword = GenererMotDePasse(10);
+            // 3. Générer un mot de passe aléatoire (10 caractères)
+            string passwordClair = GenererMotDePasse(10);
 
-            // 4. ENVOI DU MAIL (Avant la sauvegarde BDD pour être sûr que ça part)
+            // 4. Tenter l'envoi de l'email AVANT d'enregistrer
+            // Si l'envoi échoue, on passe dans le catch et on ne crée pas le user
             try 
             {
-                // De-commente la ligne ci-dessous quand tu as configuré EmailService
-                // EmailService.EnvoyerMotDePasse(emailNorm, Nom, randomPassword);
-                
-                // Pour le test tant que tu n'as pas de serveur SMTP, on l'affiche dans la console ou en Messagebox
-               // Console.WriteLine($"[EMAIL SIMULÉ] Pour: {emailNorm} | Pass: {randomPassword}");
+                EmailService.EnvoyerIdentifiants(emailNorm, Nom, passwordClair);
             }
-            catch (Exception emailEx)
+            catch (Exception exMail)
             {
-                Error = "Impossible d'envoyer l'email. L'utilisateur n'a pas été créé. " + emailEx.Message;
-                return; // On arrête tout, on ne crée pas le user si l'email ne part pas
+                Error = "Impossible d'envoyer l'email. L'inscription est annulée.\n" + exMail.Message;
+                return; 
             }
 
-            // 5. Hashage et Sauvegarde
-            var hash = BCrypt.Net.BCrypt.HashPassword(randomPassword);
+            // 5. Création de l'utilisateur en BDD
+            var hash = BCrypt.Net.BCrypt.HashPassword(passwordClair);
 
-            var user = new User
+            var newUser = new User
             {
                 Nom = Nom.Trim(),
                 Prenom = Prenom.Trim(),
                 Email = emailNorm,
                 PasswordHash = hash,
-                Role = 1 // Par défaut on crée un Utilisateur simple (modifier si besoin)
+                Role = 1 // Par défaut "Utilisateur" simple
             };
 
-            ctx.Users.Add(user);
+            ctx.Users.Add(newUser);
             await ctx.SaveChangesAsync();
 
-            // 6. Succès et Nettoyage
-            SuccessMessage = $"Utilisateur créé avec succès ! Le mot de passe a été envoyé à {emailNorm}.";
+            // 6. Succès
+            SuccessMessage = $"Utilisateur créé et email envoyé à {emailNorm}.";
             
-            // On vide les champs pour permettre d'en créer un autre
-            Nom = "";
-            Prenom = "";
-            Email = "";
-            
-            // On ne change PAS de vue (_nav.GoToHome) car l'admin veut peut-être en créer d'autres.
+            // On vide les champs pour enchainer
+            Nom = ""; Prenom = ""; Email = "";
         }
         catch (Exception ex)
         {
-            Error = "Erreur BDD : " + ex.Message;
+            Error = "Erreur technique : " + ex.Message;
         }
     }
 
-    // Méthode utilitaire pour générer un mot de passe
     private string GenererMotDePasse(int longueur)
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
+        const string chars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$";
         var random = new Random();
         return new string(Enumerable.Repeat(chars, longueur)
             .Select(s => s[random.Next(s.Length)]).ToArray());

@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FleetManager.Models;
 
-[Table("Role")]
+[Table("role")]
 public class Role
-{   
+{
     [Key]
     [Column("id_role")]
     public int Id_role { get; set; }
-    
+
     [Column("nom_role")]
-    public string Nom_role { get; set; } = ""; 
+    public string Nom_role { get; set; } = "";
 }

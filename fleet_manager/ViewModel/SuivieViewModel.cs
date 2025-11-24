@@ -100,7 +100,7 @@ public class SuivieViewModel : BaseViewModel
         CancelDeleteCommand = new RelayCommand(() => IsDeleteDialogOpen = false);
 
         // 🔥 Initialisation de la commande de navigation
-        GoToDetailCommand = new RelayCommand<Suivi>(s => _nav.GoToHistoriqueDetail(s));
+        GoToDetailCommand = new RelayCommand<Suivi>(s => _nav.GoToHistoriqueDetail(s,false));
 
         _ = ChargerDonnees();
     }

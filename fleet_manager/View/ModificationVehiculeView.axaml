@@ -131,6 +131,7 @@
                                                 <TextBlock Text="L" Foreground="#333" FontSize="12"/>
                                             </StackPanel>
                                             
+                                            
                                         </StackPanel>
 
                                         <!-- BOUTON MENU (EDITER) -->
@@ -229,6 +230,12 @@
                         <StackPanel Spacing="5">
                             <TextBlock Text="Kilométrage Actuel" Foreground="#666" FontSize="12"/>
                             <TextBox Text="{Binding Kilometrage}" Watermark="Ex: 120000" Foreground="#333"/>
+                        </StackPanel>
+                        
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Prix d'achat" Foreground="#666" FontSize="12">
+                                <TextBox Text="{Binding PrixVehicule}" Watermark="Ex:10000 " Foreground="#333"></TextBox>
+                            </TextBlock>
                         </StackPanel>
 
                         <TextBlock Text="{Binding Error}" Foreground="#D32F2F" TextWrapping="Wrap" FontSize="12"/>

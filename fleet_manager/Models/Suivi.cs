@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace FleetManager.Models;
 
@@ -19,7 +20,7 @@ public class Suivi
     public int KmDepart { get; set; }
 
     [Column("km_arrivee")]
-    public int? KmArrivee { get; set; } // Nullable car au départ on ne sait pas
+    public int? KmArrivee { get; set; }
 
     [Column("destination")]
     public string? Destination { get; set; }
@@ -27,27 +28,28 @@ public class Suivi
     [Column("commentaire")]
     public string? Commentaire { get; set; }
 
-    // 1 = Ouvert (En cours), 0 = Fermé
-    // EntityFramework convertit automatiquement tinyint(1) en bool
     [Column("Status")] 
     public bool Status { get; set; } 
+
+    // --- NOUVELLE COLONNE ---
+    
+    [Column("Prix")]
+    [Precision(10, 2)] // DECIMAL(10,2) pour stocker le calcul du trigger
+    public decimal Prix { get; set; }
 
     // --- RELATIONS ---
     
     [Column("id_user")]
     public int UserId { get; set; }
     
-    // Pas obligatoire de charger le User pour l'affichage, mais bonne pratique
     [ForeignKey("UserId")]
     public User? User { get; set; }
 
     [Column("id_vehicule")]
     public int VehiculeId { get; set; }
     
-    // 🔥 C'est GRÂCE À ÇA qu'on aura la plaque et la marque !
     [ForeignKey("VehiculeId")]
     public Vehicule? Vehicule { get; set; }
     
     public ICollection<PleinCarburant> Pleins { get; set; } = new List<PleinCarburant>();
-
 }

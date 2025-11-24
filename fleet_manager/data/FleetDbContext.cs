@@ -7,7 +7,7 @@ namespace FleetManager.Data;
 public class FleetDbContext : DbContext
 {
     public FleetDbContext() { }
-    public FleetDbContext(DbContextOptions<FleetDbContext> options) : base(options) { }
+    public FleetDbContext(DbContextOptions options) : base(options) { }
 
     public DbSet<User> Users => Set<User>();
     
@@ -15,9 +15,12 @@ public class FleetDbContext : DbContext
     
     public DbSet<Suivi> Suivis { get; set; }
     public DbSet<Role> Roles { get; set; }
+    
+    public DbSet<Parametre> Parametres { get; set; }
 
     
     public DbSet<PleinCarburant> PleinsCarburants { get; set; } 
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -31,12 +34,20 @@ public class FleetDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Configuration User (index unique sur Email)
         modelBuilder.Entity<User>()
             .ToTable("user")
             .HasIndex(u => u.Email)
             .IsUnique();
 
+        // ⬇️ AJOUTE CETTE CONFIGURATION POUR LA RELATION User -> Role
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.RoleInfo)
+            .WithMany()
+            .HasForeignKey(u => u.Role)
+            .HasPrincipalKey(r => r.Id_role)
+            .OnDelete(DeleteBehavior.Restrict);
+
         base.OnModelCreating(modelBuilder);
     }
-
 }

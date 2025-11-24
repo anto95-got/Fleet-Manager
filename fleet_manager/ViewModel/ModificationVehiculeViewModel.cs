@@ -31,7 +31,10 @@ public class ModificationVehiculeViewModel : BaseViewModel
     private string _annee = "";
     private string _kilometrage = "";
     private string _statut = "";
-    private string _capacite = "50"; // Valeur par défaut
+    private string _capacite = "50";
+    
+    // Modification : On utilise string pour faciliter la saisie et la validation
+    private string _prixVehicule = "0"; 
 
     // --- PROPRIÉTÉS ---
     public string Imatricule  { get => _imatricule;  set { _imatricule  = value; OnPropertyChanged(); } }
@@ -40,6 +43,9 @@ public class ModificationVehiculeViewModel : BaseViewModel
     public string Annee       { get => _annee;       set { _annee       = value; OnPropertyChanged(); } }
     public string Kilometrage { get => _kilometrage; set { _kilometrage = value; OnPropertyChanged(); } }
     public string Capacite    { get => _capacite;    set { _capacite    = value; OnPropertyChanged(); } }
+    
+    public string PrixVehicule { get => _prixVehicule; set { _prixVehicule = value; OnPropertyChanged(); } }
+
     public string Status      { get => _statut;      set { _statut      = value; OnPropertyChanged(); } }
     public string Error       { get => _error;       set { _error       = value; OnPropertyChanged(); } }
 
@@ -62,7 +68,7 @@ public class ModificationVehiculeViewModel : BaseViewModel
     // Liste des véhicules
     public ObservableCollection<Vehicule> MesVehicules { get; set; } = new();
 
-    // --- NOUVEAU : GESTION LISTE SUIVIS (POPUP) ---
+    // --- LISTE SUIVIS (POPUP) ---
     private bool _isSuiviListOpen;
     public bool IsSuiviListOpen
     {
@@ -84,7 +90,6 @@ public class ModificationVehiculeViewModel : BaseViewModel
     public ICommand ConfirmDeleteCommand { get; }
     public ICommand CancelDeleteCommand { get; }
 
-    // Remplacé : OpenSuiviCommand -> OpenSuiviListCommand
     public ICommand OpenSuiviListCommand { get; }
     public ICommand CloseSuiviListCommand { get; }
     public ICommand GoToHistoriqueDetailCommand { get; }
@@ -106,7 +111,6 @@ public class ModificationVehiculeViewModel : BaseViewModel
         ConfirmDeleteCommand = new RelayCommand(async () => await ValiderSuppression());
         CancelDeleteCommand  = new RelayCommand(() => IsDeleteDialogOpen = false);
 
-        // NOUVEAU : Commandes pour la popup des suivis
         OpenSuiviListCommand = new RelayCommand<Vehicule>(async (v) => await ChargerEtOuvrirSuivis(v));
         CloseSuiviListCommand = new RelayCommand(() => IsSuiviListOpen = false);
         GoToHistoriqueDetailCommand = new RelayCommand<Suivi>(NaviguerVersEditionSuivi);
@@ -134,12 +138,12 @@ public class ModificationVehiculeViewModel : BaseViewModel
         if (s != null)
         {
             IsSuiviListOpen = false;
-            // On appelle la nouvelle méthode du NavigationService
-            _nav.GoToHistoriqueDetail(s);
+            // True car on vient de la page Véhicule
+            _nav.GoToHistoriqueDetail(s, true); 
         }
     }
 
-    // --- LOGIQUE VEHICULE (Ton code original) ---
+    // --- LOGIQUE VEHICULE ---
 
     private async Task ChargerVehicules()
     {
@@ -160,7 +164,8 @@ public class ModificationVehiculeViewModel : BaseViewModel
     {
         _currentId = 0; 
         Imatricule = ""; Marque = ""; Modele = ""; Annee = ""; Kilometrage = "";
-        Capacite = "50"; // Reset défaut
+        Capacite = "50"; 
+        PrixVehicule = "0"; // Reset
         Error = "";
         IsFormOpen = true;
     }
@@ -175,7 +180,8 @@ public class ModificationVehiculeViewModel : BaseViewModel
             Modele = v.Modele;
             Annee = v.Annee.ToString();
             Kilometrage = v.Kilometrage.ToString();
-            Capacite = v.Capacite.ToString(); // Charge la capacité
+            Capacite = v.Capacite.ToString();
+            PrixVehicule = v.PrixVehicule.ToString("F0"); // Charge le prix (sans décimale inutile si c'est 20000)
             
             Error = "";
             IsFormOpen = true;
@@ -188,17 +194,24 @@ public class ModificationVehiculeViewModel : BaseViewModel
 
         if (string.IsNullOrWhiteSpace(Imatricule) || string.IsNullOrWhiteSpace(Marque) ||
             string.IsNullOrWhiteSpace(Modele) || string.IsNullOrWhiteSpace(Annee) ||
-            string.IsNullOrWhiteSpace(Kilometrage) || string.IsNullOrWhiteSpace(Capacite))
+            string.IsNullOrWhiteSpace(Kilometrage) || string.IsNullOrWhiteSpace(Capacite) || 
+            string.IsNullOrWhiteSpace(PrixVehicule))
         {
             Error = "Tous les champs sont obligatoires.";
             return;
         }
 
+        // Conversions et Validations
         if (!int.TryParse(Annee, out var anneeInt) || anneeInt <= 0) { Error = "Année invalide."; return; }
         if (!int.TryParse(Kilometrage, out var kmInt) || kmInt < 0) { Error = "Kilométrage invalide."; return; }
-        
-        // Validation Capacité
         if (!int.TryParse(Capacite, out var capaInt) || capaInt <= 0) { Error = "Capacité invalide."; return; }
+
+        // Validation du PRIX (Ne doit pas être négatif)
+        if (!decimal.TryParse(PrixVehicule, out var prixDec) || prixDec < 0) 
+        { 
+            Error = "Le prix du véhicule ne peut pas être négatif."; 
+            return; 
+        }
 
         if (ContientInjection(Imatricule) || ContientInjection(Marque) || ContientInjection(Modele)) { Error = "Caractères interdits."; return; }
 
@@ -222,7 +235,8 @@ public class ModificationVehiculeViewModel : BaseViewModel
                     Modele = modeleNorm, 
                     Annee = anneeInt, 
                     Kilometrage = kmInt, 
-                    Capacite = capaInt, // Sauvegarde
+                    Capacite = capaInt,
+                    PrixVehicule = prixDec, // Insertion du prix validé
                     Status = "en magasin" 
                 };
                 ctx.Vehicules.Add(v);
@@ -237,7 +251,8 @@ public class ModificationVehiculeViewModel : BaseViewModel
                     v.Modele = modeleNorm; 
                     v.Annee = anneeInt; 
                     v.Kilometrage = kmInt;
-                    v.Capacite = capaInt; // Mise à jour
+                    v.Capacite = capaInt;
+                    v.PrixVehicule = prixDec; // Mise à jour du prix
                 }
             }
             await ctx.SaveChangesAsync();
@@ -249,6 +264,8 @@ public class ModificationVehiculeViewModel : BaseViewModel
             Error = "Erreur BDD : " + (ex.InnerException?.Message ?? ex.Message);
         }
     }
+
+    // ... (Le reste suppression, helpers et converters reste inchangé) ...
 
     private void DemanderSuppression(object param)
     {
@@ -270,13 +287,11 @@ public class ModificationVehiculeViewModel : BaseViewModel
         }
     }
 
-    // Helpers
     private bool ContientInjection(string input) => !string.IsNullOrWhiteSpace(input) && Regex.IsMatch(input.ToLower(), @"(<script|</script>|--|'|""|;|/\*|\*/|drop|delete|insert|update|select|create|alter|union)");
     private string Nettoyer(string input) => string.IsNullOrWhiteSpace(input) ? "" : input.Trim().Replace("<", "").Replace(">", "").Replace("'", "").Replace("\"", "");
 }
 
-// --- CONVERTISSEURS ---
-
+// ... Converters inchangés ...
 public class StatusToColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

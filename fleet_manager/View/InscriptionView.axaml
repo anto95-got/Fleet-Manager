@@ -90,18 +90,23 @@
                    HorizontalAlignment="Center"/>
 
         <!-- Bouton S'inscrire -->
-      <Button Content="S'inscrire"
-        MinWidth="200"
-        Height="36"
-        FontWeight="Bold"
-        CornerRadius="6"
-        Command="{Binding RegisterCommand}"/>
+      
 
 
         <!-- Lien vers Connexion -->
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Spacing="6">
+                    Spacing="30">
+            
+            <Button Content="Ajouter"
+                    MinWidth="50"
+                    Height="30"
+                    FontWeight="Bold"
+                    CornerRadius="6"
+                    Cursor="Hand"
+                    Background="Chartreuse"
+                    Command="{Binding RegisterCommand}"/>
+            
             <Button Content="Annuler"
                     Command="{Binding GoBackCommand}"
                     BorderThickness="0"

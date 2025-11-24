@@ -93,27 +93,19 @@ public class NavigationService
     }
     
     // Ancienne méthode (pour info, on garde si tu t'en sers ailleurs)
-    public void GoToHitoSuivie(Vehicule v)
-    {
-        if (_main.State.CurrentUser == null)
-        {
-            GoToLogin();
-            return;
-        }
-        // Note: Cette vue n'est plus utilisée telle quelle pour la liste, 
-        // mais je laisse le code pour ne rien casser.
-        // _main.CurrentView = new HistoriqueVehiculeViewModel(this, _main.State, v); 
-    }
+   
 
     // --- NOUVELLE MÉTHODE AJOUTÉE POUR TA DEMANDE ---
-    public void GoToHistoriqueDetail(Suivi s)
+    // Ajout du paramètre 'vientDeVehicule'
+    public void GoToHistoriqueDetail(Suivi s, bool vientDeVehicule)
     {
         if (_main.State.CurrentUser == null)
         {
             GoToLogin();
             return;
         }
-        // On passe le Suivi ET le State
-        _main.CurrentView = new HistoriqueVehiculeViewModel(this, _main.State, s);
+    
+        // On transmet l'info au ViewModel
+        _main.CurrentView = new HistoriqueVehiculeViewModel(this, _main.State, s, vientDeVehicule);
     }
 }
