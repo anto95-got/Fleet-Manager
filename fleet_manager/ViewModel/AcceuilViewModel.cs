@@ -1,155 +1,181 @@
 using System;
+using System.Collections.Generic; // Pour List
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using FleetManager.Models;
 using FleetManager.Services;
-using FleetManager.Data;              // DbContext
-using Microsoft.EntityFrameworkCore;   // CountAsync
+using FleetManager.Data;
+using Microsoft.EntityFrameworkCore;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 
-namespace FleetManager.ViewModels
+namespace FleetManager.ViewModels;
+
+public class AcceuilViewModel : BaseViewModel
 {
-    public class AcceuilViewModel : BaseViewModel
+    private readonly NavigationService _nav;
+    private readonly AppState _state;
+    private readonly FleetDbContext _db;
+
+    // --- SÉCURITÉ & NAVIGATION ---
+    // 🔥 Vérifie si l'utilisateur est Admin (Role ID = 2)
+    public bool IsAdmin => _state.CurrentUser?.Role is 2 or 3 ; 
+
+    public string WelcomeText => _state.CurrentUser == null ? "Bienvenue" : $"Bienvenue {_state.CurrentUser.Prenom} {_state.CurrentUser.Nom}";
+
+    // --- FILTRES ---
+    public List<string> FilterOptions { get; } = new() { "Tout", "Cette Année", "Ce Mois", "Cette Semaine" };
+    
+    private string _selectedFilter = "Tout";
+    public string SelectedFilter
     {
-        private readonly NavigationService _nav;
-        private readonly AppState _state;
-        private readonly FleetDbContext _db;   // DbContext
-
-        // --- Propriétés véhicule ---
-        private string _imatricule = "";
-        private string _marque = "";
-        private string _modele = "";
-        private int _annee;
-        private int _kilometrage;
-        private string _statut = "";
-        private string _error = "";
-
-        public string imatricule { get => _imatricule; set { _imatricule = value; OnPropertyChanged(); } }
-        public string marque     { get => _marque;     set { _marque     = value; OnPropertyChanged(); } }
-        public string modele     { get => _modele;     set { _modele     = value; OnPropertyChanged(); } }
-        public int annee         { get => _annee;      set { _annee      = value; OnPropertyChanged(); } }
-        public int kilometrage   { get => _kilometrage; set { _kilometrage = value; OnPropertyChanged(); } }
-        public string statut     { get => _statut;     set { _statut     = value; OnPropertyChanged(); } }
-        public string Error      { get => _error;      set { _error      = value; OnPropertyChanged(); } }
-
-        // --- Propriétés suivi ---
-        private int _Id_suivi;
-        private DateTime _date_suivi;
-        private int _km_depart;
-        private int _km_arrivee;
-        private string _destination = "";
-        private string _commentaire = "";
-        private string _error2 = "";
-
-        public int Id               => _Id_suivi;
-        public DateTime Date_suivi  { get => _date_suivi;  set { _date_suivi  = value; OnPropertyChanged(); } }
-        public int Km_depart        { get => _km_depart;   set { _km_depart   = value; OnPropertyChanged(); } }
-        public int Km_arrivee       { get => _km_arrivee;  set { _km_arrivee  = value; OnPropertyChanged(); } }
-        public string Destination   { get => _destination; set { _destination = value; OnPropertyChanged(); } }
-        public string Commentaire   { get => _commentaire; set { _commentaire = value; OnPropertyChanged(); } }
-        public string Error2        { get => _error2;      set { _error2      = value; OnPropertyChanged(); } }
-
-        // --- Propriété pour le nombre de véhicules ---
-        private string _nombreDeVehicules = "0";
-        public string NombreDeVehicules
-        {
-            get => _nombreDeVehicules;
-            set { _nombreDeVehicules = value; OnPropertyChanged(); }
+        get => _selectedFilter;
+        set 
+        { 
+            _selectedFilter = value; 
+            OnPropertyChanged();
+            _ = ReloadDataWithFilter(); 
         }
+    }
 
-        // --- Propriété pour le nombre de suivis ---
-        private string _nombreDeSuivis = "0";
-        public string NombreDeSuivis
+    // --- KPIs ---
+    private string _nombreDeVehicules = "0";
+    public string NombreDeVehicules { get => _nombreDeVehicules; set { _nombreDeVehicules = value; OnPropertyChanged(); } }
+
+    private string _nombreDeSuivis = "0";
+    public string NombreDeSuivis { get => _nombreDeSuivis; set { _nombreDeSuivis = value; OnPropertyChanged(); } }
+
+    // --- GRAPHIQUES ---
+    public ISeries[] StatusSeries { get; set; } = { };
+    public ISeries[] ActivitySeries { get; set; } = { };
+    public Axis[] ActivityXAxes { get; set; } = { };
+
+    // --- COMMANDES ---
+    public ICommand LogoutCommand { get; }
+    public ICommand GoVehiculesCommand { get; }
+    public ICommand GoToHome { get; }
+    public ICommand GoSuivieCommand { get; }
+    
+    public ICommand GoToRegisterCommand { get; }
+    
+    // 🔥 NOUVELLES COMMANDES
+    public ICommand GoToProfilCommand { get; }
+    public ICommand GoToAdminCommand { get; }
+
+    public AcceuilViewModel(NavigationService nav, AppState state, FleetDbContext db)
+    {
+        _nav = nav;
+        _state = state;
+        _db = db;
+
+        // Navigation existante
+        LogoutCommand = new RelayCommand(async () => { _state.CurrentUser = null; _nav.GoToLogin(); });
+        GoVehiculesCommand = new RelayCommand(() => _nav.GoToVehicules());
+        GoToHome = new RelayCommand(() => _nav.GoToHome());
+        GoSuivieCommand = new RelayCommand(() => _nav.GoToSuivie());
+        GoToRegisterCommand = new RelayCommand(() => _nav.GoToRegister());
+
+        // 🔥 NOUVELLE NAVIGATION
+        GoToProfilCommand = new RelayCommand(() => _nav.GoToProfil());
+        GoToAdminCommand = new RelayCommand(() => _nav.GoToAdmin());
+
+        // Initialisation des données
+        _ = ReloadDataWithFilter();
+    }
+
+    // 🔥 MÉTHODE CENTRALE DE RECHARGEMENT (inchangée)
+    private async Task ReloadDataWithFilter()
+    {
+        try
         {
-            get => _nombreDeSuivis;
-            set { _nombreDeSuivis = value; OnPropertyChanged(); }
-        }
+            // 1. Calcul de la date de début selon le filtre
+            DateTime? dateDebut = null;
+            DateTime now = DateTime.Now;
 
-        // Commandes
-        public ICommand LogoutCommand { get; }
-        public ICommand GoVehiculesCommand { get; }
-        public ICommand GoToHome { get; }
-
-        // Menu
-        public ObservableCollection<MenuItem> MenuItems { get; }
-
-        public AcceuilViewModel(NavigationService nav, AppState state, FleetDbContext db)
-        {
-            _nav   = nav;
-            _state = state;
-            _db    = db;
-
-            // Commandes
-            LogoutCommand      = new RelayCommand(LogoutAsync);
-            GoVehiculesCommand = new RelayCommand(GoVehicules);
-            GoToHome           = new RelayCommand(() => _nav.GoToHome());
-
-            // Menu
-            MenuItems = new ObservableCollection<MenuItem>
+            switch (SelectedFilter)
             {
-                new MenuItem { Title = "Gestion des véhicules", Command = GoVehiculesCommand },
-                new MenuItem { Title = "Déconnexion",           Command = LogoutCommand }
+                case "Cette Année": dateDebut = new DateTime(now.Year, 1, 1); break;
+                case "Ce Mois": dateDebut = new DateTime(now.Year, now.Month, 1); break;
+                case "Cette Semaine": dateDebut = now.AddDays(-7); break; // Les 7 derniers jours
+                default: dateDebut = null; break; // "Tout"
+            }
+
+            // 2. KPIs (Chiffres)
+            var nbVehicules = await _db.Vehicules.CountAsync();
+            NombreDeVehicules = nbVehicules.ToString();
+
+            var querySuivis = _db.Suivis.AsQueryable();
+            if (dateDebut.HasValue)
+            {
+                querySuivis = querySuivis.Where(s => s.DateSuivi >= dateDebut.Value);
+            }
+            var nbSuivis = await querySuivis.CountAsync();
+            NombreDeSuivis = nbSuivis.ToString();
+
+
+            // 3. GRAPHIQUES
+            
+            // A. Camembert (État Actuel)
+            int nbEnMagasin = await _db.Vehicules.CountAsync(v => v.Status == "en magasin");
+            int nbEnLocation = await _db.Vehicules.CountAsync(v => v.Status == "en location");
+
+            StatusSeries = new ISeries[]
+            {
+                new PieSeries<int> { Values = new[] { nbEnMagasin }, Name = "En Magasin", Fill = new SolidColorPaint(SKColors.MediumSeaGreen) },
+                new PieSeries<int> { Values = new[] { nbEnLocation }, Name = "En Location", Fill = new SolidColorPaint(SKColors.OrangeRed) }
             };
+            OnPropertyChanged(nameof(StatusSeries));
 
-            _ = InitAsync();
-        }
-
-        private async Task InitAsync()
-        {
-            // On fait les requêtes l'une APRÈS l'autre
-            await RafraichirNombreDeVehiculesAsync();
-            await RafraichirNombreDeSuivieAsync();
-        }
-
-        public string WelcomeText
-        {
-            get
+            // B. Barres (Activité)
+            var queryGraph = _db.Suivis.Where(s => s.Status == false && s.KmArrivee != null);
+            
+            if (dateDebut.HasValue)
             {
-                if (_state.CurrentUser is null)
-                    return "Bienvenue";
-
-                return $"Bienvenue { _state.CurrentUser.Prenom } {_state.CurrentUser.Nom}";
+                queryGraph = queryGraph.Where(s => s.DateSuivi >= dateDebut.Value);
             }
-        }
 
-        private async Task LogoutAsync()
-        {
-            _state.CurrentUser = null;
-            _nav.GoToLogin();
-        }
+            var activityData = await queryGraph
+                .OrderByDescending(s => s.DateSuivi)
+                .Take(10)
+                .Select(s => new { s.DateSuivi, Distance = s.KmArrivee - s.KmDepart })
+                .ToListAsync();
 
-        private void GoVehicules()
-        {
-            _nav.GoToVehicules();
-        }
+            activityData.Reverse(); 
 
-        // 🔁 Méthode qui va chercher le nombre de véhicules dans la BDD
-        public async Task RafraichirNombreDeVehiculesAsync()
-        {
-            try
+            if (activityData.Any())
             {
-                var count = await _db.Vehicules.CountAsync();
-                NombreDeVehicules = $"{count}";
+                ActivitySeries = new ISeries[]
+                {
+                    new ColumnSeries<int> 
+                    { 
+                        Values = activityData.Select(x => (int)x.Distance).ToArray(), 
+                        Name = "Km",
+                        Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+                    }
+                };
+                
+                ActivityXAxes = new Axis[] 
+                { 
+                    new Axis { Labels = activityData.Select(x => x.DateSuivi.ToString("dd/MM")).ToArray(), LabelsRotation = 0 } 
+                };
             }
-            catch (Exception ex)
+            else
             {
-                Error = "Erreur lors du chargement du nombre de véhicules";
-                Console.WriteLine(ex);
+                ActivitySeries = new ISeries[] { };
+                ActivityXAxes = new Axis[] { new Axis { Labels = new[] { "Aucune donnée" } } };
             }
-        }
 
-        public async Task RafraichirNombreDeSuivieAsync()
+            OnPropertyChanged(nameof(ActivitySeries));
+            OnPropertyChanged(nameof(ActivityXAxes));
+
+        }
+        catch (Exception ex)
         {
-            try
-            {
-                var count = await _db.Suivis.CountAsync();
-                NombreDeSuivis = $"{count}";
-            }
-            catch (Exception e)
-            {
-                Error2 = "Erreur lors du chargement du nombre des suivis";
-                Console.WriteLine(e);
-            }
+            Console.WriteLine("Erreur Dashboard : " + ex.Message);
         }
     }
 }

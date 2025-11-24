@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:FleetManager.ViewModels"
+             xmlns:m="clr-namespace:FleetManager.Models"
+             x:Class="FleetManager.Views.GestionUtilisateursView"
+             x:DataType="vm:GestionUtilisateursViewModel"
+             x:Name="Root">
+
+    <Grid ColumnDefinitions="250,*">
+        <!-- MENU -->
+        <Border Grid.Column="0" Background="#FFB3B3B3">
+            <StackPanel Margin="20" VerticalAlignment="Center">
+                <Button Command="{Binding GoBackCommand}" Background="Transparent" Cursor="Hand">
+                    <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png" Width="150"/>
+                </Button>
+                <Button Command="{Binding GoBackCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Retour Accueil" FontSize="16" Foreground="Black"/>
+                </Button>
+                <Button Command="{Binding GoToRegister}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Ajouter un Utilisateur" FontSize="16" FontWeight="Bold" Foreground="Black"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- LISTE -->
+        <Border Grid.Column="1" Background="White">
+            <Grid Margin="30" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Text="Administration des Utilisateurs" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="Black"/>
+
+                <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="All" BorderThickness="1" BorderBrush="Gray">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="*"/>
+                        <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" Width="*"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="1.5*"/>
+                        
+                        <!-- 🔥 CORRECTION : On utilise RoleInfo pour l'affichage -->
+                        <DataGridTextColumn Header="Rôle" Binding="{Binding RoleInfo.Nom_role}" Width="*"/>
+                        
+                        <DataGridTemplateColumn Header="Actions" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                                        <Button Content="✏️" Command="{Binding #Root.((vm:GestionUtilisateursViewModel)DataContext).OpenEditCommand}" CommandParameter="{Binding}" Background="Transparent" Cursor="Hand"/>
+                                        <Button Content="🗑" Command="{Binding #Root.((vm:GestionUtilisateursViewModel)DataContext).DeleteCommand}" CommandParameter="{Binding}" Background="Transparent" Foreground="Red" Cursor="Hand"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- POPUP -->
+        <Border Background="#99000000" IsVisible="{Binding IsFormOpen}" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="2000">
+            <Grid>
+                <Border Background="White" CornerRadius="10" Padding="30" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Spacing="15">
+                        <TextBlock Text="Utilisateur" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black"/>
+                        
+                        <TextBox Text="{Binding Nom}" Watermark="Nom" />
+                        <TextBox Text="{Binding Prenom}" Watermark="Prénom" />
+                        <TextBox Text="{Binding Email}" Watermark="Email" />
+                        <TextBox Text="{Binding Password}" Watermark="Mot de passe" PasswordChar="•"/>
+                        
+                        <TextBlock Text="Rôle :" FontWeight="Bold"/>
+                        <!-- Affichage correct dans le ComboBox -->
+                        <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Nom_role}"/></DataTemplate></ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Text="{Binding Error}" Foreground="Red" FontSize="12"/>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                            <Button Content="Annuler" Command="{Binding CloseFormCommand}" Cursor="Hand" Foreground="Black"/>
+                            <Button Content="Sauvegarder" Command="{Binding SaveCommand}" Background="#1976D2" Foreground="White" Cursor="Hand"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

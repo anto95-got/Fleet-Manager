@@ -8,6 +8,9 @@ using FleetManager.Services;
 using FleetManager.Data;
 using FleetManager.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace FleetManager.ViewModels;
 
@@ -16,23 +19,28 @@ public class ModificationVehiculeViewModel : BaseViewModel
     private readonly NavigationService _nav;
     private readonly AppState _state;
 
-    // --- 1. GESTION DU FORMULAIRE (AJOUT / MODIF) ---
+    // --- CHAMPS ---
     private int _currentId = 0; 
     private bool _isFormOpen;
     private string _error = "";
 
-    // Champs textes
+    // Champs du formulaire
     private string _imatricule = "";
     private string _marque = "";
     private string _modele = "";
     private string _annee = "";
     private string _kilometrage = "";
+    private string _statut = "";
+    private string _capacite = "50"; // Valeur par défaut
 
+    // --- PROPRIÉTÉS ---
     public string Imatricule  { get => _imatricule;  set { _imatricule  = value; OnPropertyChanged(); } }
     public string Marque      { get => _marque;      set { _marque      = value; OnPropertyChanged(); } }
     public string Modele      { get => _modele;      set { _modele      = value; OnPropertyChanged(); } }
     public string Annee       { get => _annee;       set { _annee       = value; OnPropertyChanged(); } }
     public string Kilometrage { get => _kilometrage; set { _kilometrage = value; OnPropertyChanged(); } }
+    public string Capacite    { get => _capacite;    set { _capacite    = value; OnPropertyChanged(); } }
+    public string Status      { get => _statut;      set { _statut      = value; OnPropertyChanged(); } }
     public string Error       { get => _error;       set { _error       = value; OnPropertyChanged(); } }
 
     public bool IsFormOpen
@@ -41,9 +49,9 @@ public class ModificationVehiculeViewModel : BaseViewModel
         set { _isFormOpen = value; OnPropertyChanged(); }
     }
 
-    // --- 2. GESTION DU POPUP SUPPRESSION (NOUVEAU 🔥) ---
+    // Popup Suppression
     private bool _isDeleteDialogOpen;
-    private Vehicule? _vehiculeASupprimer; // Stocke temporairement le véhicule
+    private Vehicule? _vehiculeASupprimer;
 
     public bool IsDeleteDialogOpen
     {
@@ -51,57 +59,88 @@ public class ModificationVehiculeViewModel : BaseViewModel
         set { _isDeleteDialogOpen = value; OnPropertyChanged(); }
     }
 
-    // --- LISTE DES VÉHICULES ---
-    public ObservableCollection<Vehicule> MesVehicules { get; set; }
+    // Liste des véhicules
+    public ObservableCollection<Vehicule> MesVehicules { get; set; } = new();
+
+    // --- NOUVEAU : GESTION LISTE SUIVIS (POPUP) ---
+    private bool _isSuiviListOpen;
+    public bool IsSuiviListOpen
+    {
+        get => _isSuiviListOpen;
+        set { _isSuiviListOpen = value; OnPropertyChanged(); }
+    }
+    public ObservableCollection<Suivi> ListeSuivisDuVehicule { get; set; } = new();
+
 
     // --- COMMANDES ---
     public ICommand GoToHome { get; }
     
-    // Commandes Formulaire Ajout/Modif
-    public ICommand OpenAddFormCommand { get; }    // Ouvre pour ajouter
-    public ICommand OpenEditFormCommand { get; }   // Ouvre pour modifier
-    public ICommand CloseFormCommand { get; }      // Ferme le form
-    public ICommand SubmitFormCommand { get; }     // Valide (Save)
+    public ICommand OpenAddFormCommand { get; }
+    public ICommand OpenEditFormCommand { get; }
+    public ICommand CloseFormCommand { get; }
+    public ICommand SubmitFormCommand { get; }
 
-    // Commandes Suppression (Sécurisée)
-    public ICommand AskDeleteCommand { get; }      // 1. Demande "Etes-vous sûr ?"
-    public ICommand ConfirmDeleteCommand { get; }  // 2. "Oui, supprimer"
-    public ICommand CancelDeleteCommand { get; }   // 3. "Non, annuler"
+    public ICommand AskDeleteCommand { get; }
+    public ICommand ConfirmDeleteCommand { get; }
+    public ICommand CancelDeleteCommand { get; }
 
-    // Commande Suivi
-    public ICommand OpenSuiviCommand { get; }      // Ouvre le formulaire de suivi
-    
+    // Remplacé : OpenSuiviCommand -> OpenSuiviListCommand
+    public ICommand OpenSuiviListCommand { get; }
+    public ICommand CloseSuiviListCommand { get; }
+    public ICommand GoToHistoriqueDetailCommand { get; }
+
 
     public ModificationVehiculeViewModel(NavigationService nav, AppState state)
     {
         _nav = nav;
         _state = state;
-        MesVehicules = new ObservableCollection<Vehicule>();
 
-        // Navigation simple
         GoToHome = new RelayCommand(() => _nav.GoToHome());
 
-        // Gestion Formulaire Véhicule
         OpenAddFormCommand  = new RelayCommand(PrepareAjout);
         OpenEditFormCommand = new RelayCommand<object>(PrepareModification);
         CloseFormCommand    = new RelayCommand(() => IsFormOpen = false);
         SubmitFormCommand   = new RelayCommand(async () => await SaveForm());
 
-        // Gestion Suppression (En 2 étapes)
         AskDeleteCommand     = new RelayCommand<object>(DemanderSuppression);
         ConfirmDeleteCommand = new RelayCommand(async () => await ValiderSuppression());
         CancelDeleteCommand  = new RelayCommand(() => IsDeleteDialogOpen = false);
 
-        // Gestion Suivi
-        OpenSuiviCommand = new RelayCommand<object>(AllerVersSuivi);
+        // NOUVEAU : Commandes pour la popup des suivis
+        OpenSuiviListCommand = new RelayCommand<Vehicule>(async (v) => await ChargerEtOuvrirSuivis(v));
+        CloseSuiviListCommand = new RelayCommand(() => IsSuiviListOpen = false);
+        GoToHistoriqueDetailCommand = new RelayCommand<Suivi>(NaviguerVersEditionSuivi);
 
-        // Chargement initial
         _ = ChargerVehicules();
     }
 
-    // ---------------------------------------------------------
-    // 🚗 MÉTHODES CHARGEMENT
-    // ---------------------------------------------------------
+    // --- LOGIQUE POPUP SUIVI ---
+    private async Task ChargerEtOuvrirSuivis(Vehicule v)
+    {
+        if (v == null) return;
+        try
+        {
+            using var ctx = new FleetDbContext();
+            var suivis = await ctx.Suivis.Where(s => s.VehiculeId == v.Id).OrderByDescending(s => s.DateSuivi).ToListAsync();
+            ListeSuivisDuVehicule.Clear();
+            foreach (var s in suivis) { s.Vehicule = v; ListeSuivisDuVehicule.Add(s); }
+            IsSuiviListOpen = true;
+        }
+        catch (Exception ex) { Error = "Erreur suivi: " + ex.Message; }
+    }
+
+    private void NaviguerVersEditionSuivi(Suivi s)
+    {
+        if (s != null)
+        {
+            IsSuiviListOpen = false;
+            // On appelle la nouvelle méthode du NavigationService
+            _nav.GoToHistoriqueDetail(s);
+        }
+    }
+
+    // --- LOGIQUE VEHICULE (Ton code original) ---
+
     private async Task ChargerVehicules()
     {
         try
@@ -117,34 +156,27 @@ public class ModificationVehiculeViewModel : BaseViewModel
         }
     }
 
-    // ---------------------------------------------------------
-    // ➕ / ✏️ GESTION AJOUT ET MODIFICATION
-    // ---------------------------------------------------------
     private void PrepareAjout()
     {
-        _currentId = 0; // Nouveau
+        _currentId = 0; 
         Imatricule = ""; Marque = ""; Modele = ""; Annee = ""; Kilometrage = "";
+        Capacite = "50"; // Reset défaut
         Error = "";
         IsFormOpen = true;
     }
 
-    // Cette méthode est appelée quand tu cliques sur le bouton gris du menu
     private void PrepareModification(object param)
     {
-        // On vérifie qu'on a bien reçu un véhicule
         if (param is Vehicule v)
         {
-            // 1. On stocke l'ID pour savoir qu'on modifie (pas un ajout)
             _currentId = v.Id; 
-        
-            // 2. On remplit les champs du formulaire avec les infos du véhicule
             Imatricule = v.Imatricule;
             Marque = v.Marque;
             Modele = v.Modele;
             Annee = v.Annee.ToString();
             Kilometrage = v.Kilometrage.ToString();
-        
-            // 3. On ouvre le formulaire
+            Capacite = v.Capacite.ToString(); // Charge la capacité
+            
             Error = "";
             IsFormOpen = true;
         }
@@ -154,21 +186,21 @@ public class ModificationVehiculeViewModel : BaseViewModel
     {
         Error = "";
 
-        // Validations de base
         if (string.IsNullOrWhiteSpace(Imatricule) || string.IsNullOrWhiteSpace(Marque) ||
             string.IsNullOrWhiteSpace(Modele) || string.IsNullOrWhiteSpace(Annee) ||
-            string.IsNullOrWhiteSpace(Kilometrage))
+            string.IsNullOrWhiteSpace(Kilometrage) || string.IsNullOrWhiteSpace(Capacite))
         {
             Error = "Tous les champs sont obligatoires.";
             return;
         }
+
         if (!int.TryParse(Annee, out var anneeInt) || anneeInt <= 0) { Error = "Année invalide."; return; }
         if (!int.TryParse(Kilometrage, out var kmInt) || kmInt < 0) { Error = "Kilométrage invalide."; return; }
-        if (ContientInjection(Imatricule) || ContientInjection(Marque) || ContientInjection(Modele))
-        {
-            Error = "Caractères interdits.";
-            return;
-        }
+        
+        // Validation Capacité
+        if (!int.TryParse(Capacite, out var capaInt) || capaInt <= 0) { Error = "Capacité invalide."; return; }
+
+        if (ContientInjection(Imatricule) || ContientInjection(Marque) || ContientInjection(Modele)) { Error = "Caractères interdits."; return; }
 
         string imatriculeNorm = Nettoyer(Imatricule).ToLower();
         string marqueNorm = Nettoyer(Marque);
@@ -184,7 +216,15 @@ public class ModificationVehiculeViewModel : BaseViewModel
                 {
                     Error = "Ce véhicule existe déjà."; return;
                 }
-                var v = new Vehicule { Imatricule = imatriculeNorm, Marque = marqueNorm, Modele = modeleNorm, Annee = anneeInt, Kilometrage = kmInt, Status = "en boutique" };
+                var v = new Vehicule { 
+                    Imatricule = imatriculeNorm, 
+                    Marque = marqueNorm, 
+                    Modele = modeleNorm, 
+                    Annee = anneeInt, 
+                    Kilometrage = kmInt, 
+                    Capacite = capaInt, // Sauvegarde
+                    Status = "en magasin" 
+                };
                 ctx.Vehicules.Add(v);
             }
             else // MODIFICATION
@@ -192,7 +232,12 @@ public class ModificationVehiculeViewModel : BaseViewModel
                 var v = await ctx.Vehicules.FindAsync(_currentId);
                 if (v != null)
                 {
-                    v.Imatricule = imatriculeNorm; v.Marque = marqueNorm; v.Modele = modeleNorm; v.Annee = anneeInt; v.Kilometrage = kmInt;
+                    v.Imatricule = imatriculeNorm; 
+                    v.Marque = marqueNorm; 
+                    v.Modele = modeleNorm; 
+                    v.Annee = anneeInt; 
+                    v.Kilometrage = kmInt;
+                    v.Capacite = capaInt; // Mise à jour
                 }
             }
             await ctx.SaveChangesAsync();
@@ -205,74 +250,51 @@ public class ModificationVehiculeViewModel : BaseViewModel
         }
     }
 
-    // ---------------------------------------------------------
-    // 🗑️ GESTION SUPPRESSION (SÉCURISÉE)
-    // ---------------------------------------------------------
-    
-    // Étape 1 : On clique sur la poubelle
     private void DemanderSuppression(object param)
     {
-        if (param is Vehicule v)
-        {
-            _vehiculeASupprimer = v; // On le garde en mémoire
-            IsDeleteDialogOpen = true; // On ouvre le popup "Êtes-vous sûr ?"
-        }
+        if (param is Vehicule v) { _vehiculeASupprimer = v; IsDeleteDialogOpen = true; }
     }
 
-    // Étape 2 : On clique sur "OUI" dans le popup
     private async Task ValiderSuppression()
     {
         if (_vehiculeASupprimer != null)
         {
-            try
-            {
+            try {
                 using var ctx = new FleetDbContext();
-                // Le Attach n'est pas obligatoire si on utilise Remove directement avec l'objet correct,
-                // mais par sécurité on peut faire Remove direct.
                 ctx.Vehicules.Remove(_vehiculeASupprimer);
                 await ctx.SaveChangesAsync();
-
-                MesVehicules.Remove(_vehiculeASupprimer); // Mise à jour visuelle
+                MesVehicules.Remove(_vehiculeASupprimer);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erreur suppression : " + ex.Message);
-                // Tu pourrais afficher l'erreur dans une variable ErrorDelete si tu veux
-            }
-            finally
-            {
-                // Quoi qu'il arrive, on ferme le popup et on vide la mémoire
-                IsDeleteDialogOpen = false;
-                _vehiculeASupprimer = null;
-            }
-        }
-    }
-
-    // ---------------------------------------------------------
-    // 📍 GESTION SUIVI (NAVIGATION)
-    // ---------------------------------------------------------
-    private void AllerVersSuivi(object param)
-    {
-        if (param is Vehicule v)
-        {
-            // Ici, on passe le véhicule sélectionné à l'état global (AppState)
-            // pour que la page "AjoutSuivi" sache quel véhicule est concerné.
-            // (Supposons que tu aies ajouté une propriété 'SelectedVehiculeForSuivi' dans AppState)
-            
-            // _state.CurrentVehiculeSuivi = v; // Exemple
-            
-            Console.WriteLine($"Navigation vers suivi pour : {v.Marque} {v.Modele}");
-            
-            // Navigation vers la page de suivi
-            // _nav.GoToAjoutSuivi(); // À adapter selon ta méthode de navigation
+            catch (Exception ex) { Console.WriteLine("Erreur suppression : " + ex.Message); }
+            finally { IsDeleteDialogOpen = false; _vehiculeASupprimer = null; }
         }
     }
 
     // Helpers
-    private bool ContientInjection(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return false;
-        return Regex.IsMatch(input.ToLower(), @"(<script|</script>|--|'|""|;|/\*|\*/|drop|delete|insert|update|select|create|alter|union)");
-    }
+    private bool ContientInjection(string input) => !string.IsNullOrWhiteSpace(input) && Regex.IsMatch(input.ToLower(), @"(<script|</script>|--|'|""|;|/\*|\*/|drop|delete|insert|update|select|create|alter|union)");
     private string Nettoyer(string input) => string.IsNullOrWhiteSpace(input) ? "" : input.Trim().Replace("<", "").Replace(">", "").Replace("'", "").Replace("\"", "");
+}
+
+// --- CONVERTISSEURS ---
+
+public class StatusToColorConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        string s = (value as string)?.ToLower().Trim() ?? "";
+        if (s == "en location") return SolidColorBrush.Parse("#FF4444");
+        if (s == "panne") return SolidColorBrush.Parse("Orange");
+        return SolidColorBrush.Parse("#4CAF50"); 
+    }
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class KiloFormatConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is int valInt) return valInt.ToString("N0", new CultureInfo("fr-FR"));
+        return value;
+    }
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
 }

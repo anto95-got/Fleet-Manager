@@ -14,6 +14,7 @@ public abstract class BaseViewModel : INotifyPropertyChanged
     public ICommand Logout => Nav.LogoutCommand;
     public ICommand GoHome => Nav.GoHomeCommand;
     public ICommand GoVehicules => Nav.GoVehiculesCommand;
+    public ICommand GoSuivie => Nav.GoSuivieCommand;
 
     // ============================
     //      NOTIFICATIONS MVVM

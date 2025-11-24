@@ -108,18 +108,7 @@
                 CornerRadius="6"
                 Command="{Binding LoginCommand}"/>
 
-        <!-- Lien vers Inscription -->
-        <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Spacing="6">
-          <TextBlock Text="Pas encore de compte ?" Foreground="#374151"/>
-          <Button Content="Créer un compte"
-                  Command="{Binding GoRegisterCommand}"
-                  Background="Transparent"
-                  Foreground="#3b82f6"
-                  BorderThickness="0"
-                  Cursor="Hand"/>
-        </StackPanel>
+       
 
       </StackPanel>
     </Border>

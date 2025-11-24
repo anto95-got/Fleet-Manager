@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:FleetManager.ViewModels"
+             x:Class="FleetManager.Views.ProfilView"
+             x:DataType="vm:ProfilViewModel">
+
+    <Grid ColumnDefinitions="250,*">
+        <!-- MENU GAUCHE STANDARD -->
+        <Border Grid.Column="0" Background="#FFB3B3B3">
+            <StackPanel Margin="20" VerticalAlignment="Center">
+                <Button Command="{Binding GoBackCommand}" Background="Transparent" Cursor="Hand">
+                    <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png" Width="150"/>
+                </Button>
+                <Button Command="{Binding GoBackCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Retour Accueil" FontSize="16" Foreground="Black"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- FORMULAIRE PROFIL -->
+        <Border Grid.Column="1" Background="White">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Spacing="15">
+                <TextBlock Text="Mon Profil" FontSize="24" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Informations" FontWeight="Bold" Foreground="#666"/>
+                <TextBox Text="{Binding Nom}" Watermark="Nom"/>
+                <TextBox Text="{Binding Prenom}" Watermark="Prénom"/>
+                <TextBox Text="{Binding Email}" Watermark="Email"/>
+
+                <Separator Background="#EEE" Margin="0,10"/>
+
+                <TextBlock Text="Changer de mot de passe (Laisser vide si inchangé)" FontWeight="Bold" Foreground="#666"/>
+                <TextBox Text="{Binding NewPassword}" Watermark="Nouveau mot de passe" PasswordChar="•"/>
+                <TextBox Text="{Binding ConfirmPassword}" Watermark="Confirmer le mot de passe" PasswordChar="•"/>
+
+                <TextBlock Text="{Binding Message}" Foreground="{Binding MessageColor}" HorizontalAlignment="Center"/>
+
+                <Button Content="Enregistrer les modifications" 
+                        Command="{Binding SaveCommand}" 
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Background="#1976D2" Foreground="White" Cursor="Hand" CornerRadius="5"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

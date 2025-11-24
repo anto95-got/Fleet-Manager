@@ -1,0 +1,229 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:FleetManager.ViewModels"
+             x:Class="FleetManager.Views.HistoriqueVehiculeView"
+             x:DataType="vm:HistoriqueVehiculeViewModel"
+             x:Name="Root">
+
+    <UserControl.Resources>
+        <!-- Import du convertisseur pour corriger le bug de date -->
+        <vm:DateTimeToOffsetConverter x:Key="DateConverter"/>
+    </UserControl.Resources>
+
+    <!-- Styles globaux pour cette page pour améliorer la visibilité -->
+    <UserControl.Styles>
+        
+        <!-- Style de base pour l'animation -->
+        <Style Selector="Button">
+            <Setter Property="RenderTransform" Value="none" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- Au survol (PointerOver) : On agrandit le bouton -->
+        <Style Selector="Button:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.05)" />
+            <Setter Property="ZIndex" Value="10" /> <!-- Passe devant les autres -->
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <!-- CORRECTIF IMPORTANT : 
+             Empêche le bouton de devenir gris/blanc/transparent au survol.
+             On lui dit : "Garde la couleur de Background que je t'ai donnée". -->
+        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{TemplateBinding Background}" />
+            <Setter Property="Opacity" Value="0.9" /> <!-- Juste un tout petit peu plus clair pour l'effet -->
+        </Style>
+
+        <!-- Tes styles existants pour les inputs (je les garde ici) -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CCC"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="DatePicker">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CCC"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="250,*">
+        
+        <!-- MENU RETOUR -->
+        <Border Grid.Column="0" Background="#F0F0F0" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0">
+            <StackPanel Margin="20" VerticalAlignment="Top" Spacing="20">
+                <!-- Bouton corrigé pour être visible (Texte en Bleu foncé) -->
+                <Button Command="{Binding GoBackCommand}" 
+                        Background="Transparent" 
+                        Cursor="Hand" 
+                        HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                         <TextBlock Text="⬅" FontSize="20" Foreground="#1565C0"/>
+                         <TextBlock Text="Retour Liste" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Foreground="#1565C0"/>
+                    </StackPanel>
+                </Button>
+                
+                <TextBlock Text="Modification du Trajet" FontSize="18" FontWeight="Bold" Foreground="#333" TextWrapping="Wrap"/>
+                <TextBlock Text="Modifiez ici les informations du trajet et gérez les pleins de carburant associés." 
+                           FontSize="12" Foreground="#666" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <!-- CONTENU FORMULAIRE -->
+        <ScrollViewer Grid.Column="1" Background="White">
+            <StackPanel Margin="40" Spacing="25">
+
+                <!-- Titre Principal -->
+                <TextBlock Text="Édition du Suivi" FontSize="26" FontWeight="Bold" Foreground="#1976D2"/>
+                
+                <!-- Message d'erreur -->
+                <Border Background="#FFEBEE" BorderBrush="#FFCDD2" BorderThickness="1" CornerRadius="4" Padding="10" IsVisible="{Binding HasError}">
+                    <TextBlock Text="{Binding Error}" Foreground="#D32F2F" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                </Border>
+
+                <!-- SECTION 1 : INFO TRAJET -->
+                <Border Background="#FAFAFA" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="20" BoxShadow="0 2 5 0 #EEE">
+                    <StackPanel Spacing="15">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📍" FontSize="18"/>
+                            <TextBlock Text="Informations Générales" FontWeight="Bold" FontSize="16" Foreground="#333"/>
+                        </StackPanel>
+                        
+                        <Grid ColumnDefinitions="*, 20, *">
+                            <StackPanel Grid.Column="0" Spacing="5">
+                                <TextBlock Text="Date du trajet" FontWeight="SemiBold" Foreground="#555"/>
+                                <DatePicker SelectedDate="{Binding DateSuivi}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="5">
+                                <TextBlock Text="Destination" FontWeight="SemiBold" Foreground="#555"/>
+                                <TextBox Text="{Binding Destination}" Watermark="Ex: Paris"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, 20, *">
+                            <StackPanel Grid.Column="0" Spacing="5">
+                                <TextBlock Text="Km Départ" FontWeight="SemiBold" Foreground="#555"/>
+                                <TextBox Text="{Binding KmDepart}" Watermark="Ex: 150000"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="5">
+                                <TextBlock Text="Km Arrivée" FontWeight="SemiBold" Foreground="#555"/>
+                                <TextBox Text="{Binding KmArrivee}" Watermark="Laisser vide si en cours"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Separator Background="#E0E0E0" Height="1" Margin="0,10"/>
+
+                        <!-- ============================================== -->
+                        <!-- CHECKBOX DYNAMIQUE (MODIFIÉ)                   -->
+                        <!-- ============================================== -->
+                        <StackPanel Spacing="5">
+                            <CheckBox IsChecked="{Binding IsOpen}" 
+                                      Content="{Binding StatusLabel}" 
+                                      FontWeight="Bold" 
+                                      Foreground="#1565C0"
+                                      Cursor="Hand"/>
+                            
+                            <!-- Message de feedback (Vous avez fermé/ouvert...) -->
+                            <TextBlock Text="{Binding StatusFeedback}" 
+                                       FontSize="12" 
+                                       Foreground="#4CAF50" 
+                                       FontStyle="Italic"
+                                       Margin="30,0,0,0"
+                                       IsVisible="{Binding StatusFeedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                        </StackPanel>
+                        <!-- ============================================== -->
+
+                    </StackPanel>
+                </Border>
+
+                <!-- SECTION 2 : CARBURANT (PLEINS) -->
+                <Border Background="#FAFAFA" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8" Padding="20" BoxShadow="0 2 5 0 #EEE">
+                    <StackPanel Spacing="15">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <TextBlock Text="⛽" FontSize="18"/>
+                                <TextBlock Text="Gestion du Carburant" FontWeight="Bold" FontSize="16" Foreground="#333"/>
+                            </StackPanel>
+                            
+                            <Button Command="{Binding AddPleinCommand}" 
+                                    HorizontalAlignment="Right" 
+                                    Background="#E3F2FD" BorderBrush="#BBDEFB" BorderThickness="1"
+                                    Foreground="#1565C0" CornerRadius="4" Padding="15,8" Cursor="Hand">
+                                <TextBlock Text="+ Ajouter un plein" FontWeight="Bold"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- LISTE DES PLEINS -->
+                        <ItemsControl ItemsSource="{Binding ListePleins}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,0,10">
+                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+                                            
+                                            <!-- Icone -->
+                                            <TextBlock Text="⛽" VerticalAlignment="Center" FontSize="20" Margin="0,0,15,0"/>
+                                            
+                                            <!-- Date Plein (CORRECTION ICI AVEC LE CONVERTER) -->
+                                            <StackPanel Grid.Column="1" Spacing="5" Margin="0,0,15,0">
+                                                <TextBlock Text="Date du plein" FontSize="10" Foreground="#888" FontWeight="Bold"/>
+                                                <!-- L'UTILISATION DU CONVERTER EST ICI -->
+                                                <DatePicker SelectedDate="{Binding DatePlein, Converter={StaticResource DateConverter}}" 
+                                                            HorizontalAlignment="Stretch"/>
+                                            </StackPanel>
+
+                                            <!-- Litres -->
+                                            <StackPanel Grid.Column="2" Spacing="5" Margin="0,0,15,0" VerticalAlignment="Center">
+                                                <TextBlock Text="Quantité (L)" FontSize="10" Foreground="#888" FontWeight="Bold"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBox Text="{Binding Litres}" Width="80" TextAlignment="Right"/>
+                                                    <TextBlock Text="L" VerticalAlignment="Center" Margin="5,0,0,0" FontWeight="Bold" Foreground="#555"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Supprimer -->
+                                            <Button Grid.Column="3" 
+                                                    Command="{Binding #Root.((vm:HistoriqueVehiculeViewModel)DataContext).RemovePleinCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Background="#FFEBEE" Foreground="#D32F2F" 
+                                                    VerticalAlignment="Bottom" Margin="0,0,0,2"
+                                                    ToolTip.Tip="Supprimer ce plein">
+                                                <TextBlock Text="🗑" FontWeight="Bold"/>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        
+                        <!-- Message si vide -->
+                        <TextBlock Text="Aucun plein enregistré pour ce trajet." 
+                                   IsVisible="{Binding !ListePleins.Count}" 
+                                   FontStyle="Italic" Foreground="#999" HorizontalAlignment="Center" Margin="0,10"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- BOUTONS ACTIONS -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15" Margin="0,10,0,0">
+                     <Button Content="Annuler" 
+                             Command="{Binding GoBackCommand}" 
+                             Background="White" BorderBrush="#CCC" BorderThickness="1" Foreground="#555" 
+                             Padding="20,10" CornerRadius="4" Cursor="Hand"/>
+                     
+                     <Button Content="ENREGISTRER LES MODIFICATIONS" 
+                             Command="{Binding SaveCommand}" 
+                             Background="#2E7D32" Foreground="White" 
+                             FontWeight="Bold" Padding="25,10" CornerRadius="4" Cursor="Hand"
+                             />
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -10,12 +10,16 @@
         <entry key="fleet_manager/View/AcceuilView.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/Connexion.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/ConnexionView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/GestionUtilisateursView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/HistoriqueVehiculeView.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/Inscription.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/InscriptionView.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/MainWindow.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/MainWindowViewModel.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/ModificationVehicule.axaml" value="fleet_manager/fleet_manager.csproj" />
         <entry key="fleet_manager/View/ModificationVehiculeView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/ProfilView.axaml" value="fleet_manager/fleet_manager.csproj" />
+        <entry key="fleet_manager/View/SuivieView.axaml" value="fleet_manager/fleet_manager.csproj" />
       </map>
     </option>
   </component>

@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using FleetManager.Models;
 using FleetManager.ViewModels;
 
 namespace FleetManager.Services;
@@ -12,6 +13,8 @@ public class NavigationService
     public ICommand GoHomeCommand { get; }
     public ICommand GoVehiculesCommand { get; }
 
+    public ICommand GoSuivieCommand { get; }
+
     public NavigationService(MainWindowViewModel main)
     {
         _main = main;
@@ -20,6 +23,7 @@ public class NavigationService
         LogoutCommand = new RelayCommand(Logout);
         GoHomeCommand = new RelayCommand(GoToHome);
         GoVehiculesCommand = new RelayCommand(GoToVehicules);
+        GoSuivieCommand = new RelayCommand(GoToSuivie);
     }
 
     // =========================================================
@@ -43,17 +47,29 @@ public class NavigationService
         _main.CurrentView = new ConnexionViewModel(this, _main.State);
     }
 
+    public void GoToSuivie()
+    {
+        if (_main.State.CurrentUser == null)
+        {
+            GoToLogin();
+            return;
+        }
+        _main.CurrentView = new SuivieViewModel(this, _main.State);
+    }
+
     public void GoToRegister()
     {    
-        if (_main.State.CurrentUser != null)
+        if (_main.State.CurrentUser?.Role is not  (2 or 3) )
         {
             GoToHome();
             return;
         }
-
         _main.CurrentView = new InscriptionViewModel(this, _main.State);
-    }
 
+        
+    }
+    public void GoToProfil() => _main.CurrentView = new ProfilViewModel(this, _main.State);
+    public void GoToAdmin() => _main.CurrentView = new GestionUtilisateursViewModel(this, _main.State);
     public void GoToHome()
     {
         if (_main.State.CurrentUser == null)
@@ -74,5 +90,30 @@ public class NavigationService
         }
 
         _main.CurrentView = new ModificationVehiculeViewModel(this, _main.State);
+    }
+    
+    // Ancienne méthode (pour info, on garde si tu t'en sers ailleurs)
+    public void GoToHitoSuivie(Vehicule v)
+    {
+        if (_main.State.CurrentUser == null)
+        {
+            GoToLogin();
+            return;
+        }
+        // Note: Cette vue n'est plus utilisée telle quelle pour la liste, 
+        // mais je laisse le code pour ne rien casser.
+        // _main.CurrentView = new HistoriqueVehiculeViewModel(this, _main.State, v); 
+    }
+
+    // --- NOUVELLE MÉTHODE AJOUTÉE POUR TA DEMANDE ---
+    public void GoToHistoriqueDetail(Suivi s)
+    {
+        if (_main.State.CurrentUser == null)
+        {
+            GoToLogin();
+            return;
+        }
+        // On passe le Suivi ET le State
+        _main.CurrentView = new HistoriqueVehiculeViewModel(this, _main.State, s);
     }
 }

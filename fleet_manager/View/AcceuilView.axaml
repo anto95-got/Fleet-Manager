@@ -1,117 +1,146 @@
-<UserControl
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:FleetManager.ViewModels"
-    x:Class="FleetManager.Views.AcceuilView"
-    x:DataType="vm:AcceuilViewModel">
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:FleetManager.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             x:Class="FleetManager.Views.AcceuilView"
+             x:DataType="vm:AcceuilViewModel">
 
     <Grid ColumnDefinitions="250,*">
 
-        <Border Grid.Column="0" Background="#FFB3B3B3">
+        <!-- ========================== -->
+        <!-- 1. MENU DE GAUCHE (CLAIR)  -->
+        <!-- ========================== -->
+        <!-- Fond #F5F5F5 (Gris très clair) pour la lisibilité -->
+        <Border Grid.Column="0" Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0">
             <StackPanel Margin="20" VerticalAlignment="Center">
-
-                <Button Command="{Binding GoToHome}"
-                        Background="Transparent"
-                        Foreground="Transparent"
-                        BorderThickness="0"
-                        HorizontalAlignment="Left"
-                        Margin="0,0,0,5">
-                    <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png"
-                           Width="150"
-                           Height="150"/>
+                
+                <Button Command="{Binding GoToHome}" Background="Transparent" BorderThickness="0" Margin="0,0,0,30" Cursor="Hand">
+                    <Image Source="avares://fleet_manager/static/image_logo/logo_fleet_sans-fond.png" Width="150" Height="150"/>
                 </Button>
 
-                <Button Command="{Binding GoVehiculesCommand}"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Margin="0,10">
-                    <TextBlock Text="Modifier véhicule" FontSize="16"/>
+                <!-- Boutons en Noir -->
+                <Button Command="{Binding GoToHome}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Tableau de bord" FontSize="16" FontWeight="Bold" Foreground="Black"/>
+                </Button>
+                
+                <Button Command="{Binding GoSuivieCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Voir les Suivis" FontSize="16" Foreground="Black"/>
+                </Button>
+                
+                <Button Command="{Binding GoVehiculesCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Vehicule" FontSize="16" Foreground="Black"/>
+                </Button>
+                
+                <Button Command="{Binding GoToAdminCommand}" IsVisible="{Binding IsAdmin}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Administration" FontSize="16" Foreground="#D32F2F" FontWeight="Bold"/>
+                </Button>
+                
+                <Button Command="{Binding GoToRegisterCommand}" IsVisible="{Binding IsAdmin}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Ajouter des Utilisateur" FontSize="16" Foreground="#D32F2F" FontWeight="Bold"/>
                 </Button>
 
-                <Button Command="{Binding LogoutCommand}"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Margin="0,10">
-                    <TextBlock Text="Déconnexion" FontSize="16"/>
+                <!-- Bouton Profil (Pour tout le monde) -->
+                <Button Command="{Binding GoToProfilCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Mon Profil" FontSize="16" Foreground="Black"/>
+                </Button>
+
+                <Button Command="{Binding LogoutCommand}" Background="Transparent" Margin="0,10" Cursor="Hand">
+                    <TextBlock Text="Déconnexion" FontSize="16" Foreground="#D32F2F"/>
                 </Button>
 
             </StackPanel>
         </Border>
 
-        <Grid Grid.Column="1" Background="White" RowDefinitions="Auto,*">
+        <!-- ========================== -->
+        <!-- 2. TABLEAU DE BORD (BLANC) -->
+        <!-- ========================== -->
+        <Border Grid.Column="1" Background="White">
+            <Grid Margin="30" RowDefinitions="Auto, Auto, *">
     
-            <TextBlock Grid.Row="0"
-                       Text="{Binding WelcomeText}"
-                       FontSize="24"
-                       Margin="30,20,0,20"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top"/>
-            
-            <Grid Grid.Row="1" 
-                  RowDefinitions="Auto, Auto" 
-                  Margin="30,0,0,0" 
-                  VerticalAlignment="Top" 
-                  ColumnDefinitions="*"> 
-                
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="20" Margin="0,0,0,20">
-                    
-                    <Border Background="Gray"
-                            CornerRadius="6"
-                            Height="100"
-                            Width="150">
-                       <StackPanel VerticalAlignment="Center">
-                           <TextBlock Text="Nombre de véhicules"
-                                      FontSize="10"
-                                      Margin="5,10,5,5"
-                                      FontStyle="Italic"
-                                      HorizontalAlignment="Center"
-                                      TextWrapping="Wrap"/>
-                           <TextBlock Text="{Binding NombreDeVehicules}"
-                                      FontSize="16"
-                                      FontWeight="Bold"
-                                      Foreground="Red"
-                                      HorizontalAlignment="Center"/>
-                       </StackPanel>
-                    </Border>
-                    
-                    <Border Background="Gray"
-                            CornerRadius="6"
-                            Height="100"
-                            Width="150">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Nombre de transactions"
-                                       FontSize="10"
-                                       Margin="5,10,5,5"
-                                       FontStyle="Italic"
-                                       HorizontalAlignment="Center"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding NombreDeSuivis}"
-                                       FontSize="16"
-                                       Foreground="Red"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    
-                </StackPanel>
+                <!-- EN-TÊTE -->
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,30">
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Tableau de Bord" FontSize="28" FontWeight="Bold" Foreground="Black"/>
+                        <TextBlock Text="{Binding WelcomeText}" FontSize="16" Foreground="#757575" Margin="0,5,0,0"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="20">
+                    <!-- FILTRE (Menu déroulant) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <TextBlock Text="Période :" VerticalAlignment="Center" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding FilterOptions}" 
+                                  SelectedItem="{Binding SelectedFilter}" 
+                                  Width="150" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- INDICATEURS CLÉS (KPI) -->
+                <Grid Grid.Row="1" ColumnDefinitions="*, *" Margin="0,0,0,30">
                     
-                    <Border Background="#F4F4F4"
-                            CornerRadius="6"
-                            Height="300"
-                            Width="500">
-                        <StackPanel/>
+                    <!-- Carte 1 : Véhicules -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="10" Margin="0,0,15,0" Padding="20" 
+                            BorderBrush="#E0E0E0" BorderThickness="1" BoxShadow="0 2 5 0 #E0E0E0">
+                       <Grid ColumnDefinitions="Auto, *">
+                           <Border Grid.Column="0" Background="#E3F2FD" CornerRadius="50" Width="60" Height="60">
+                               <TextBlock Text="🚗" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                           </Border>
+                           
+                           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
+                               <TextBlock Text="Véhicules enregistrés" FontSize="14" Foreground="#555"/>
+                               <TextBlock Text="{Binding NombreDeVehicules}" FontSize="32" FontWeight="Bold" Foreground="#1976D2"/>
+                           </StackPanel>
+                       </Grid>
                     </Border>
                     
-                    <Border Background="#F4F4F4"
-                            CornerRadius="6"
-                            Height="300"
-                            Width="500"/>
+                    <!-- Carte 2 : Suivis -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="10" Margin="15,0,0,0" Padding="20" 
+                            BorderBrush="#E0E0E0" BorderThickness="1" BoxShadow="0 2 5 0 #E0E0E0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Border Grid.Column="0" Background="#E8F5E9" CornerRadius="50" Width="60" Height="60">
+                                <TextBlock Text="📋" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
+                                <TextBlock Text="Transactions (Période)" FontSize="14" Foreground="#555"/>
+                                <TextBlock Text="{Binding NombreDeSuivis}" FontSize="32" FontWeight="Bold" Foreground="#388E3C"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
-                </StackPanel>
+                </Grid>
+
+                <!-- GRAPHIQUES -->
+                <Grid Grid.Row="2" ColumnDefinitions="400, *"> 
+                    
+                    <!-- GRAPHIQUE 1 : CAMEMBERT -->
+                    <Border Grid.Column="0" Background="White" CornerRadius="10" Margin="0,0,15,0" Padding="20" 
+                            BorderBrush="#E0E0E0" BorderThickness="1" BoxShadow="0 2 5 0 #E0E0E0">
+                        <Grid RowDefinitions="Auto, *">
+                            <TextBlock Text="État du Parc" FontSize="16" FontWeight="Bold" Foreground="Black" Margin="0,0,0,20"/>
+                            
+                            <lvc:PieChart Grid.Row="1" 
+                                          Series="{Binding StatusSeries}" 
+                                          LegendPosition="Bottom"
+                                          TooltipPosition="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- GRAPHIQUE 2 : BARRES -->
+                    <Border Grid.Column="1" Background="White" CornerRadius="10" Margin="15,0,0,0" Padding="20" 
+                            BorderBrush="#E0E0E0" BorderThickness="1" BoxShadow="0 2 5 0 #E0E0E0">
+                        <Grid RowDefinitions="Auto, *">
+                            <TextBlock Text="Kilomètres parcourus (Derniers trajets)" FontSize="16" FontWeight="Bold" Foreground="Black" Margin="0,0,0,20"/>
+                            
+                            <!-- Graphique -->
+                            <lvc:CartesianChart Grid.Row="1" 
+                                                Series="{Binding ActivitySeries}" 
+                                                XAxes="{Binding ActivityXAxes}"
+                                                TooltipPosition="Top"/>
+                        </Grid>
+                    </Border>
+                    
+                </Grid>
                 
             </Grid>
-            </Grid>
-        </Grid>
-    </UserControl>
+        </Border>
+    </Grid>
+</UserControl>

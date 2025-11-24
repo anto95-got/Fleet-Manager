@@ -14,6 +14,10 @@ public class FleetDbContext : DbContext
     public DbSet<Vehicule> Vehicules{ get; set; }
     
     public DbSet<Suivi> Suivis { get; set; }
+    public DbSet<Role> Roles { get; set; }
+
+    
+    public DbSet<PleinCarburant> PleinsCarburants { get; set; } 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

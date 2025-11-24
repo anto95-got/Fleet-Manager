@@ -82,17 +82,7 @@
                    Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
         </StackPanel>
 
-        <StackPanel>
-          <TextBlock Text="Mot de passe" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
-          <TextBox Text="{Binding Password}" PasswordChar="•" MinWidth="260" Height="36" FontSize="14"
-                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
-        </StackPanel>
-
-        <StackPanel>
-          <TextBlock Text="Confirmer le mot de passe" FontWeight="Bold" FontSize="14" Foreground="#374151"/>
-          <TextBox Text="{Binding ConfirmPassword}" PasswordChar="•" MinWidth="260" Height="36" FontSize="14"
-                   Background="#f9fafb" BorderBrush="#d1d5db" BorderThickness="1" CornerRadius="6"/>
-        </StackPanel>
+        
 
         <TextBlock Text="{Binding Error}"
                    Foreground="Red"
@@ -112,9 +102,8 @@
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Spacing="6">
-            <TextBlock Text="Déjà un compte ?" Foreground="#374151"/>
-            <Button Content="Se connecter"
-                    Command="{Binding GoLoginCommand}"
+            <Button Content="Annuler"
+                    Command="{Binding GoBackCommand}"
                     BorderThickness="0"
                     Cursor="Hand"/>
         </StackPanel>

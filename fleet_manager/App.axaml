@@ -25,6 +25,18 @@
         <DataTemplate DataType="{x:Type vm:ModificationVehiculeViewModel}">
             <views:ModificationVehiculeView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SuivieViewModel}">
+            <views:SuivieView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ProfilViewModel}">
+            <views:ProfilView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:GestionUtilisateursViewModel}">
+            <views:GestionUtilisateursView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HistoriqueVehiculeViewModel}">
+            <views:HistoriqueVehiculeView/>
+        </DataTemplate>
 
     </Application.DataTemplates>
 
